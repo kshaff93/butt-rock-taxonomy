@@ -718,7 +718,6 @@ header .sub{
     <div id="spRow" style="display:none;margin-top:9px;padding-top:8px;border-top:1px solid #1e1a15;">
       <iframe id="spEmbed" src="" width="100%" height="80" frameborder="0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy"
         style="border-radius:8px;display:block;"></iframe>
     </div>
     <div id="dpRelated" style="display:none;">
@@ -1250,12 +1249,17 @@ function selectBand(i) {
   }, 40);
   dp.classList.add('on');
   // Spotify embed
-  const spId = SPOTIFY[band.name];
-  const spRow = document.getElementById('spRow');
+  const spId   = SPOTIFY[band.name];
+  const spRow  = document.getElementById('spRow');
   const spEmbed = document.getElementById('spEmbed');
+  console.log('[BRT] Spotify ID for', band.name, ':', spId || '(none)');
   if (spId) {
-    spEmbed.src = `https://open.spotify.com/embed/artist/${spId}?utm_source=generator&theme=0`;
     spRow.style.display = 'block';
+    // Set src after display so the iframe renders in a visible container
+    requestAnimationFrame(() => {
+      spEmbed.src = `https://open.spotify.com/embed/artist/${spId}?utm_source=generator&theme=0`;
+      console.log('[BRT] spEmbed src set:', spEmbed.src);
+    });
   } else {
     spEmbed.src = '';
     spRow.style.display = 'none';
@@ -1618,19 +1622,39 @@ function renderDpRelated() {
   const discovered = getDiscovered();
   section.style.display = '';
 
-  document.getElementById('dpRelPills').innerHTML = related.map(({name, spotifyId}) => {
-    const done        = discovered.has(name);
-    const sugOnClick  = done ? '' : `onclick="suggestRelated(${JSON.stringify(name)},${JSON.stringify(band.name)},this)"`;
-    const playOnClick = `onclick="event.stopPropagation();playRelated(this,${JSON.stringify(name)},${JSON.stringify(spotifyId)})"`;
-
-    return `<div class="rel-pill-wrap">` +
-      `<button class="rel-play-btn" style="color:${col}88;border-color:${col}44" ${playOnClick}>▶</button>` +
-      `<button class="rel-pill${done ? ' done' : ''}" ${done ? 'disabled' : sugOnClick}>` +
+  const pillsEl = document.getElementById('dpRelPills');
+  pillsEl.innerHTML = related.map(({name}, idx) => {
+    const done = discovered.has(name);
+    return `<div class="rel-pill-wrap" data-idx="${idx}">` +
+      `<button class="rel-play-btn" style="color:${col}88;border-color:${col}44">▶</button>` +
+      `<button class="rel-pill${done ? ' done' : ''}"${done ? ' disabled' : ''}>` +
         `<span class="pill-name">${esc(name)}</span>` +
         `<span class="pill-icon">${done ? '✓' : '+'}</span>` +
       `</button>` +
       `</div>`;
   }).join('');
+
+  // Attach event listeners after DOM is built — avoids inline onclick issues
+  pillsEl.querySelectorAll('.rel-pill-wrap').forEach(wrap => {
+    const idx      = parseInt(wrap.dataset.idx, 10);
+    const {name, spotifyId} = related[idx];
+    const playBtn  = wrap.querySelector('.rel-play-btn');
+    const sugBtn   = wrap.querySelector('.rel-pill');
+
+    playBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      console.log('[BRT] Play clicked:', name, '| spotifyId:', spotifyId);
+      playRelated(playBtn, name, spotifyId);
+    });
+
+    if (sugBtn && !sugBtn.disabled) {
+      sugBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        console.log('[BRT] Suggest clicked:', name);
+        suggestRelated(name, band.name, sugBtn);
+      });
+    }
+  });
 }
 
 function playRelated(btn, name, spotifyId) {
@@ -1686,6 +1710,7 @@ function closeRelPlayer() {
 }
 
 function suggestRelated(bandName, parentBand, pillEl) {
+  console.log('[BRT] suggestRelated called:', bandName, '| fbReady:', fbReady);
   if (!fbReady) { showToast('Firebase not connected'); return; }
 
   const discovered = getDiscovered();
@@ -1730,8 +1755,9 @@ function suggestRelated(bandName, parentBand, pillEl) {
 
 let _toastTimer;
 function showToast(msg) {
+  console.log('[BRT] showToast:', msg);
   const t = document.getElementById('toast');
-  if (!t) return;
+  if (!t) { console.warn('[BRT] #toast element not found!'); return; }
   t.textContent = msg;
   t.classList.add('on');
   clearTimeout(_toastTimer);
