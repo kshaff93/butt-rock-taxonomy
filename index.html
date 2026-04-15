@@ -506,7 +506,22 @@ header .sub{
   font-family:'Bebas Neue',sans-serif;font-size:0.72rem;
   letter-spacing:3px;color:#554;margin-bottom:6px;
 }
-.rel-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.rel-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;align-items:center;}
+/* each pill row: play circle + suggest button */
+.rel-pill-wrap{display:flex;align-items:center;gap:2px;}
+.rel-play-btn{
+  flex-shrink:0;width:18px;height:18px;border-radius:50%;
+  background:transparent;border:1px solid #332;
+  color:#665;font-size:0.45rem;padding-left:1px;/* optical nudge ▶ */
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.17s;
+}
+.rel-play-btn:hover{color:var(--gold);border-color:var(--gold-dim);background:#d4a44a10;}
+.rel-play-btn.playing{
+  color:#080604;border-color:var(--gold);background:var(--gold-dim);
+  animation:relPulse 1.3s ease-in-out infinite;
+}
+@keyframes relPulse{0%,100%{transform:scale(1);}50%{transform:scale(0.84);}}
 .rel-pill{
   background:transparent;border:1px dashed #3a2c18;color:#776655;
   font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;
@@ -514,11 +529,39 @@ header .sub{
   padding:3px 9px;border-radius:2px;cursor:pointer;transition:all 0.17s;
 }
 .rel-pill:hover:not(:disabled){border-color:var(--gold-dim);color:var(--gold);background:#d4a44a0e;}
-.rel-pill .pill-icon{opacity:0.55;margin-right:3px;}
+.rel-pill .pill-icon{opacity:0.55;margin-left:4px;}
 .rel-pill.done,.rel-pill:disabled{
   background:#d4a44a1a;border:1px solid #d4a44a44;
   color:var(--gold);cursor:default;
 }
+/* ── related mini player (slide-down) ── */
+#relPlayer{
+  overflow:hidden;max-height:0;
+  transition:max-height 0.32s cubic-bezier(0.4,0,0.2,1),
+             margin-top 0.32s cubic-bezier(0.4,0,0.2,1);
+  margin-top:0;
+}
+#relPlayer.open{max-height:130px;margin-top:8px;}
+.rel-player-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 0 5px;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.63rem;
+  letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);
+}
+.rel-player-close{
+  background:none;border:none;color:#443322;
+  font-size:0.82rem;cursor:pointer;padding:0 2px;
+  transition:color 0.15s;line-height:1;
+}
+.rel-player-close:hover{color:var(--text-dim);}
+#relPlayerEmbed{border-radius:4px;display:block;}
+#relPlayerLink{
+  display:block;text-align:center;padding:14px 0 4px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.72rem;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold-dim);text-decoration:none;transition:color 0.15s;
+}
+#relPlayerLink:hover{color:var(--gold);}
 
 /* ── toast notification ── */
 #toast{
@@ -682,6 +725,16 @@ header .sub{
     <div id="dpRelated" style="display:none;">
       <div class="rel-title">Similar Artists</div>
       <div class="rel-pills" id="dpRelPills"></div>
+      <div id="relPlayer">
+        <div class="rel-player-bar">
+          <span id="relPlayerName"></span>
+          <button class="rel-player-close" onclick="closeRelPlayer()">✕</button>
+        </div>
+        <iframe id="relPlayerEmbed" src="" width="100%" height="80" frameborder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"></iframe>
+        <a id="relPlayerLink" href="" target="_blank" rel="noopener"></a>
+      </div>
     </div>
     <div id="dpComments" style="display:none;">
       <div class="dp-com-title">Comments</div>
@@ -874,62 +927,65 @@ const SPOTIFY = {
 };
 
 // ── RELATED ARTISTS ──
-// Hardcoded similar-artist suggestions for every band.
+// Use rel(name) or rel(name, spotifyId) per entry.
 // None of these names exist in the BANDS taxonomy — they are discovery targets.
+// Fill in spotifyId values manually as you verify them from open.spotify.com/artist/{id}
+function rel(name, spotifyId) { return { name, spotifyId: spotifyId || null }; }
+
 const RELATED = {
-  'Nickelback':            ['Thornley','My Darkest Days','Econoline Crush','Framing Hanley'],
-  'Creed':                 ['Tremonti','Art of Anarchy','Framing Hanley','Candlebox'],
-  '3 Doors Down':          ['Oleander','Collective Soul','Evans Blue','Framing Hanley'],
-  'Hinder':                ['Rev Theory','Framing Hanley','Submersed','Burn Season'],
-  'Theory of a Deadman':   ['Rev Theory','Art of Dying','Dommin','Framing Hanley'],
-  'Puddle of Mudd':        ['Oleander','Evans Blue','Candlebox','Collective Soul'],
-  'Buckcherry':            ['Airbourne','Fozzy','Hardcore Superstar','Reckless Love'],
-  'Trapt':                 ['Framing Hanley','Evans Blue','Submersed','Smile Empty Soul'],
-  'Five Finger Death Punch':['Hellyeah','Trivium','Volbeat','Fozzy'],
-  'Saving Abel':           ['Rev Theory','Art of Dying','Burn Season','Framing Hanley'],
-  'Godsmack':              ['Smile Empty Soul','Tantric','Soil','Candlebox'],
-  'Three Days Grace':      ['My Darkest Days','Art of Dying','Rev Theory','Evans Blue'],
-  'Shinedown':             ['Halestorm','Art of Dying','Evans Blue','Framing Hanley'],
-  'Disturbed':             ['Device','Trivium','Hellyeah','Soil'],
-  'Saliva':                ['Smile Empty Soul','Tantric','Soil','Submersed'],
-  'Daughtry':              ['David Cook','Framing Hanley','Evans Blue','Art of Dying'],
-  'Lifehouse':             ['Matchbox Twenty','Oleander','Collective Soul','Candlebox'],
-  'Drowning Pool':         ['Hellyeah','Soil','Nothingface','Hatebreed'],
-  'Default':               ['Thornley','Econoline Crush','I Mother Earth','Our Lady Peace'],
-  'Papa Roach':            ['Flaw','Orgy','Submersed','Smile Empty Soul'],
-  'Fuel':                  ['Matchbox Twenty','Oleander','Candlebox','Collective Soul'],
-  'Crossfade':             ['Evans Blue','Framing Hanley','Submersed','Burn Season'],
-  'Staind':                ['Soil','Nothingface','Evans Blue','Smile Empty Soul'],
-  'Hoobastank':            ['Evans Blue','Oleander','Submersed','Framing Hanley'],
-  'Sick Puppies':          ['Framing Hanley','Evans Blue','The Veer Union','Art of Dying'],
-  'Seether':               ['Adelitas Way','Smile Empty Soul','Evans Blue','Framing Hanley'],
-  'Breaking Benjamin':     ['Starset','Saint Asonia','Badflower','Otherwise'],
-  'Limp Bizkit':           ['Crazy Town','Orgy','Hed PE','Flaw'],
-  'Finger Eleven':         ['Evans Blue','Framing Hanley','Submersed','Hyjak'],
-  'Skillet':               ['Disciple','Fireflight','Flyleaf','Decyfer Down'],
-  'P.O.D.':                ['Switchfoot','Hed PE','Blindside','Thousand Foot Krutch'],
-  'Red':                   ['Starset','Fireflight','Decyfer Down','Disciple'],
-  'Alter Bridge':          ['Tremonti','Art of Anarchy','Halestorm','Framing Hanley'],
-  'Taproot':               ['Nothingface','Soil','Flaw','Submersed'],
-  'Chevelle':              ['Helmet','Failure','Nothing','Hum'],
-  'Cold':                  ['Nothingface','Soil','Evans Blue','Submersed'],
-  'Evanescence':           ['Lacuna Coil','Within Temptation','Halestorm','Flyleaf'],
-  '10 Years':              ['Failure','Nothing','Hum','Helmet'],
-  'Linkin Park':           ['From Ashes to New','Starset','Thousand Foot Krutch','Badflower'],
-  'Avenged Sevenfold':     ['Bullet for My Valentine','Trivium','Killswitch Engage','As I Lay Dying'],
-  'Bush':                  ['Candlebox','Collective Soul','Oleander','Live'],
-  'Incubus':               ['Sparta','The Mars Volta','Rx Bandits','Thrice'],
-  'Slipknot':              ['Stone Sour','Mushroomhead','Motionless in White','Hatebreed'],
-  'Korn':                  ['Coal Chamber','Hed PE','Orgy','Nothingface'],
-  'Mudvayne':              ['Nonpoint','Nothingface','Flaw','Hellyeah'],
-  'Stone Temple Pilots':   ['Candlebox','Live','Silverchair','Collective Soul'],
-  'Deftones':              ['Crosses','Loathe','Nothing','Deafheaven'],
-  'System of a Down':      ['Rage Against the Machine','Primus','Mr. Bungle','The Locust'],
-  'A Perfect Circle':      ['Puscifer','Nine Inch Nails','Failure','Hum'],
-  'Pearl Jam':             ['Mad Season','Temple of the Dog','Mudhoney','Screaming Trees'],
-  'Soundgarden':           ['Temple of the Dog','Mad Season','Screaming Trees','Mudhoney'],
-  'Alice in Chains':       ['Mad Season','Screaming Trees','Temple of the Dog','Mudhoney'],
-  'Tool':                  ['Puscifer','Isis','Mastodon','Neurosis'],
+  'Nickelback':            [rel('Thornley'),rel('My Darkest Days'),rel('Econoline Crush'),rel('Framing Hanley')],
+  'Creed':                 [rel('Tremonti'),rel('Art of Anarchy'),rel('Framing Hanley'),rel('Candlebox')],
+  '3 Doors Down':          [rel('Oleander'),rel('Collective Soul'),rel('Evans Blue'),rel('Framing Hanley')],
+  'Hinder':                [rel('Rev Theory'),rel('Framing Hanley'),rel('Submersed'),rel('Burn Season')],
+  'Theory of a Deadman':   [rel('Rev Theory'),rel('Art of Dying'),rel('Dommin'),rel('Framing Hanley')],
+  'Puddle of Mudd':        [rel('Oleander'),rel('Evans Blue'),rel('Candlebox'),rel('Collective Soul')],
+  'Buckcherry':            [rel('Airbourne'),rel('Fozzy'),rel('Hardcore Superstar'),rel('Reckless Love')],
+  'Trapt':                 [rel('Framing Hanley'),rel('Evans Blue'),rel('Submersed'),rel('Smile Empty Soul')],
+  'Five Finger Death Punch':[rel('Hellyeah'),rel('Trivium'),rel('Volbeat'),rel('Fozzy')],
+  'Saving Abel':           [rel('Rev Theory'),rel('Art of Dying'),rel('Burn Season'),rel('Framing Hanley')],
+  'Godsmack':              [rel('Smile Empty Soul'),rel('Tantric'),rel('Soil'),rel('Candlebox')],
+  'Three Days Grace':      [rel('My Darkest Days'),rel('Art of Dying'),rel('Rev Theory'),rel('Evans Blue')],
+  'Shinedown':             [rel('Halestorm'),rel('Art of Dying'),rel('Evans Blue'),rel('Framing Hanley')],
+  'Disturbed':             [rel('Device'),rel('Trivium'),rel('Hellyeah'),rel('Soil')],
+  'Saliva':                [rel('Smile Empty Soul'),rel('Tantric'),rel('Soil'),rel('Submersed')],
+  'Daughtry':              [rel('David Cook'),rel('Framing Hanley'),rel('Evans Blue'),rel('Art of Dying')],
+  'Lifehouse':             [rel('Matchbox Twenty'),rel('Oleander'),rel('Collective Soul'),rel('Candlebox')],
+  'Drowning Pool':         [rel('Hellyeah'),rel('Soil'),rel('Nothingface'),rel('Hatebreed')],
+  'Default':               [rel('Thornley'),rel('Econoline Crush'),rel('I Mother Earth'),rel('Our Lady Peace')],
+  'Papa Roach':            [rel('Flaw'),rel('Orgy'),rel('Submersed'),rel('Smile Empty Soul')],
+  'Fuel':                  [rel('Matchbox Twenty'),rel('Oleander'),rel('Candlebox'),rel('Collective Soul')],
+  'Crossfade':             [rel('Evans Blue'),rel('Framing Hanley'),rel('Submersed'),rel('Burn Season')],
+  'Staind':                [rel('Soil'),rel('Nothingface'),rel('Evans Blue'),rel('Smile Empty Soul')],
+  'Hoobastank':            [rel('Evans Blue'),rel('Oleander'),rel('Submersed'),rel('Framing Hanley')],
+  'Sick Puppies':          [rel('Framing Hanley'),rel('Evans Blue'),rel('The Veer Union'),rel('Art of Dying')],
+  'Seether':               [rel('Adelitas Way'),rel('Smile Empty Soul'),rel('Evans Blue'),rel('Framing Hanley')],
+  'Breaking Benjamin':     [rel('Starset'),rel('Saint Asonia'),rel('Badflower'),rel('Otherwise')],
+  'Limp Bizkit':           [rel('Crazy Town'),rel('Orgy'),rel('Hed PE'),rel('Flaw')],
+  'Finger Eleven':         [rel('Evans Blue'),rel('Framing Hanley'),rel('Submersed'),rel('Hyjak')],
+  'Skillet':               [rel('Disciple'),rel('Fireflight'),rel('Flyleaf'),rel('Decyfer Down')],
+  'P.O.D.':                [rel('Switchfoot'),rel('Hed PE'),rel('Blindside'),rel('Thousand Foot Krutch')],
+  'Red':                   [rel('Starset'),rel('Fireflight'),rel('Decyfer Down'),rel('Disciple')],
+  'Alter Bridge':          [rel('Tremonti'),rel('Art of Anarchy'),rel('Halestorm'),rel('Framing Hanley')],
+  'Taproot':               [rel('Nothingface'),rel('Soil'),rel('Flaw'),rel('Submersed')],
+  'Chevelle':              [rel('Helmet'),rel('Failure'),rel('Nothing'),rel('Hum')],
+  'Cold':                  [rel('Nothingface'),rel('Soil'),rel('Evans Blue'),rel('Submersed')],
+  'Evanescence':           [rel('Lacuna Coil'),rel('Within Temptation'),rel('Halestorm'),rel('Flyleaf')],
+  '10 Years':              [rel('Failure'),rel('Nothing'),rel('Hum'),rel('Helmet')],
+  'Linkin Park':           [rel('From Ashes to New'),rel('Starset'),rel('Thousand Foot Krutch'),rel('Badflower')],
+  'Avenged Sevenfold':     [rel('Bullet for My Valentine'),rel('Trivium'),rel('Killswitch Engage'),rel('As I Lay Dying')],
+  'Bush':                  [rel('Candlebox'),rel('Collective Soul'),rel('Oleander'),rel('Live')],
+  'Incubus':               [rel('Sparta'),rel('The Mars Volta'),rel('Rx Bandits'),rel('Thrice')],
+  'Slipknot':              [rel('Stone Sour'),rel('Mushroomhead'),rel('Motionless in White'),rel('Hatebreed')],
+  'Korn':                  [rel('Coal Chamber'),rel('Hed PE'),rel('Orgy'),rel('Nothingface')],
+  'Mudvayne':              [rel('Nonpoint'),rel('Nothingface'),rel('Flaw'),rel('Hellyeah')],
+  'Stone Temple Pilots':   [rel('Candlebox'),rel('Live'),rel('Silverchair'),rel('Collective Soul')],
+  'Deftones':              [rel('Crosses'),rel('Loathe'),rel('Nothing'),rel('Deafheaven')],
+  'System of a Down':      [rel('Rage Against the Machine'),rel('Primus'),rel('Mr. Bungle'),rel('The Locust')],
+  'A Perfect Circle':      [rel('Puscifer'),rel('Nine Inch Nails'),rel('Failure'),rel('Hum')],
+  'Pearl Jam':             [rel('Mad Season'),rel('Temple of the Dog'),rel('Mudhoney'),rel('Screaming Trees')],
+  'Soundgarden':           [rel('Temple of the Dog'),rel('Mad Season'),rel('Screaming Trees'),rel('Mudhoney')],
+  'Alice in Chains':       [rel('Mad Season'),rel('Screaming Trees'),rel('Temple of the Dog'),rel('Mudhoney')],
+  'Tool':                  [rel('Puscifer'),rel('Isis'),rel('Mastodon'),rel('Neurosis')],
 };
 
 // ── GENRE ZONES (data-space: x=0-100 left→right, y=0-100 bottom→top) ──
@@ -1214,6 +1270,7 @@ function closeDp() {
   dp.classList.remove('on');
   document.getElementById('spEmbed').src = '';
   document.getElementById('spRow').style.display = 'none';
+  closeRelPlayer();
   const dpr = document.getElementById('dpRelated');
   if (dpr) dpr.style.display = 'none';
   const dpc = document.getElementById('dpComments');
@@ -1555,16 +1612,78 @@ function renderDpRelated() {
   const related = RELATED[band.name];
   if (!related || !related.length) { section.style.display = 'none'; return; }
 
+  // Close any open mini player from a previous band selection
+  closeRelPlayer();
+
+  const col        = G[band.genres[0]]?.c || '#d4a44a';
   const discovered = getDiscovered();
   section.style.display = '';
-  document.getElementById('dpRelPills').innerHTML = related.map(name => {
-    const done = discovered.has(name);
-    const onclick = done ? '' : `onclick="suggestRelated(${JSON.stringify(name)},${JSON.stringify(band.name)},this)"`;
-    return `<button class="rel-pill${done ? ' done' : ''}" ${done ? 'disabled' : onclick}>` +
-      `<span class="pill-icon">${done ? '✓' : '+'}</span>` +
-      `<span class="pill-name">${esc(name)}</span>` +
-      `</button>`;
+
+  document.getElementById('dpRelPills').innerHTML = related.map(({name, spotifyId}) => {
+    const done        = discovered.has(name);
+    const sugOnClick  = done ? '' : `onclick="suggestRelated(${JSON.stringify(name)},${JSON.stringify(band.name)},this)"`;
+    const playOnClick = `onclick="event.stopPropagation();playRelated(this,${JSON.stringify(name)},${JSON.stringify(spotifyId)})"`;
+
+    return `<div class="rel-pill-wrap">` +
+      `<button class="rel-play-btn" style="color:${col}88;border-color:${col}44" ${playOnClick}>▶</button>` +
+      `<button class="rel-pill${done ? ' done' : ''}" ${done ? 'disabled' : sugOnClick}>` +
+        `<span class="pill-name">${esc(name)}</span>` +
+        `<span class="pill-icon">${done ? '✓' : '+'}</span>` +
+      `</button>` +
+      `</div>`;
   }).join('');
+}
+
+function playRelated(btn, name, spotifyId) {
+  const player = document.getElementById('relPlayer');
+  const embed  = document.getElementById('relPlayerEmbed');
+  const link   = document.getElementById('relPlayerLink');
+  const nameEl = document.getElementById('relPlayerName');
+
+  // Toggle: clicking the same artist's play button closes the player
+  if (player.classList.contains('open') && player.dataset.playing === name) {
+    closeRelPlayer();
+    return;
+  }
+
+  // Reset all play buttons to idle state
+  document.querySelectorAll('.rel-play-btn').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  btn.classList.add('playing');
+  btn.textContent = '■';
+
+  nameEl.textContent = name;
+  player.dataset.playing = name;
+
+  if (spotifyId) {
+    embed.src = `https://open.spotify.com/embed/artist/${spotifyId}?utm_source=generator&theme=0`;
+    embed.style.display = 'block';
+    link.style.display  = 'none';
+  } else {
+    embed.src           = '';
+    embed.style.display = 'none';
+    link.href           = `https://open.spotify.com/search/${encodeURIComponent(name)}`;
+    link.textContent    = `Search "${name}" on Spotify ↗`;
+    link.style.display  = 'block';
+  }
+
+  player.classList.add('open');
+}
+
+function closeRelPlayer() {
+  const player = document.getElementById('relPlayer');
+  const embed  = document.getElementById('relPlayerEmbed');
+  if (!player) return;
+  player.classList.remove('open');
+  delete player.dataset.playing;
+  document.querySelectorAll('.rel-play-btn').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  // Clear src after slide-out animation so Spotify audio stops
+  setTimeout(() => { if (!player.classList.contains('open')) embed.src = ''; }, 340);
 }
 
 function suggestRelated(bandName, parentBand, pillEl) {
