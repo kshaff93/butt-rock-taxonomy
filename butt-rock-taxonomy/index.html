@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Butt Rock Taxonomy</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,400&family=Special+Elite&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --gold:#d4a44a;--gold-dim:#8b6914;--bg:#0a0a0a;--surface:#131110;--surface2:#1a1714;
+  --surface3:#221f1a;--border:#252220;--text:#e8e0d4;--text-dim:#887755;--text-muted:#554;
+  --sidebar-w:340px;--red:#c44;--green:#4a9;--cyan:#44aaaa;
+}
+
+body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+
+/* HEADER */
+header{text-align:center;padding:12px 20px 2px;flex-shrink:0;z-index:50;position:relative;}
+header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,4.5vw,2.8rem);letter-spacing:6px;text-transform:uppercase;background:linear-gradient(180deg,#f5e6c8 0%,#d4a44a 50%,#8b6914 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+header .subtitle{font-family:'Special Elite',cursive;font-size:clamp(0.6rem,1.2vw,0.82rem);color:var(--text-dim);letter-spacing:3px;text-transform:uppercase;}
+
+/* TAB NAV */
+.tab-nav{display:flex;justify-content:center;gap:0;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--surface);}
+.tab-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:#665;font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:3px;padding:8px 20px;cursor:pointer;transition:all 0.25s;text-transform:uppercase;}
+.tab-btn:hover{color:var(--text-dim);}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* CONTROLS BAR */
+.controls-bar{display:flex;align-items:center;justify-content:center;gap:5px;padding:5px 60px 5px 16px;flex-wrap:wrap;flex-shrink:0;}
+.filter-btn{background:transparent;border:1px solid #333;color:#998877;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;font-weight:600;padding:2px 9px;cursor:pointer;text-transform:uppercase;letter-spacing:1.5px;transition:all 0.25s;border-radius:2px;}
+.filter-btn:hover,.filter-btn.active{background:var(--gold);color:var(--bg);border-color:var(--gold);}
+
+/* SIDEBAR TOGGLE */
+.sidebar-toggle{position:fixed;top:8px;right:12px;z-index:200;background:var(--surface2);border:1px solid #333;color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:0.8rem;letter-spacing:2px;padding:4px 10px;cursor:pointer;transition:all 0.25s;border-radius:2px;}
+.sidebar-toggle:hover{background:var(--gold);color:var(--bg);}
+
+/* MAIN LAYOUT */
+.main-layout{flex:1;display:flex;overflow:hidden;position:relative;}
+
+/* TAB PAGES */
+.tab-page{display:none;flex:1;overflow:hidden;position:relative;}
+.tab-page.active{display:flex;}
+
+/* MAP TAB */
+.map-tab{flex-direction:row;}
+.map-wrapper{flex:1;display:flex;align-items:center;justify-content:center;padding:6px;transition:margin-right 0.4s cubic-bezier(0.4,0,0.2,1);}
+.map-wrapper.sidebar-open{margin-right:var(--sidebar-w);}
+
+.map-container{position:relative;width:100%;max-width:1000px;height:100%;border:1px solid var(--border);background:radial-gradient(ellipse at center,#151210 0%,var(--bg) 100%);overflow:hidden;border-radius:4px;}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;right:calc(-1 * var(--sidebar-w));width:var(--sidebar-w);height:100vh;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:right 0.4s cubic-bezier(0.4,0,0.2,1);box-shadow:-8px 0 30px rgba(0,0,0,0.5);}
+.sidebar.open{right:0;}
+
+.sidebar-header{padding:12px 12px 8px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sidebar-header h2{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:var(--gold);margin-bottom:6px;}
+.search-box{width:100%;background:var(--bg);border:1px solid #333;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;padding:5px 9px;border-radius:3px;outline:none;transition:border-color 0.2s;}
+.search-box:focus{border-color:var(--gold-dim);}
+.search-box::placeholder{color:#555;}
+
+.sort-row{display:flex;gap:3px;margin-top:6px;}
+.sort-btn{flex:1;background:transparent;border:1px solid #2a2a2a;color:#776;font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:600;padding:3px 3px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all 0.2s;border-radius:2px;}
+.sort-btn:hover,.sort-btn.active{background:#2a2520;color:var(--gold);border-color:var(--gold-dim);}
+
+.stats-bar{display:flex;gap:1px;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0;background:#0e0d0b;}
+.stat-block{flex:1;text-align:center;padding:1px;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:1px;}
+.stat-label{font-size:0.45rem;text-transform:uppercase;letter-spacing:1px;color:#554;font-weight:600;line-height:1.2;}
+
+.band-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent;}
+.band-list::-webkit-scrollbar{width:4px;}
+.band-list::-webkit-scrollbar-thumb{background:#333;border-radius:3px;}
+
+.segment-group{border-bottom:1px solid #1a1a1a;}
+.segment-header{display:flex;align-items:center;gap:7px;padding:7px 12px;cursor:pointer;transition:background 0.2s;position:sticky;top:0;background:var(--surface);z-index:5;user-select:none;}
+.segment-header:hover{background:#1a1714;}
+.seg-color{width:3px;height:18px;border-radius:2px;flex-shrink:0;}
+.seg-name{font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;flex:1;}
+.seg-count{font-size:0.6rem;color:#665;font-weight:600;letter-spacing:1px;background:#1a1a1a;padding:1px 6px;border-radius:10px;}
+.seg-chevron{font-size:0.55rem;color:#555;transition:transform 0.3s;}
+.segment-group.collapsed .seg-chevron{transform:rotate(-90deg);}
+.segment-group.collapsed .segment-items{display:none;}
+
+.band-item{display:flex;align-items:center;gap:7px;padding:6px 12px 6px 22px;cursor:pointer;transition:all 0.2s;border-left:3px solid transparent;}
+.band-item:hover{background:#1a1714;}
+.band-item.active{background:#1e1a14;border-left-color:var(--gold);}
+.bi-dot{width:7px;height:7px;border-radius:50%;border:2px solid;flex-shrink:0;}
+.bi-info{flex:1;min-width:0;}
+.bi-name{font-weight:700;font-size:0.78rem;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bi-genres{font-size:0.55rem;color:#665;letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.bi-meters{display:flex;gap:3px;flex-shrink:0;align-items:flex-end;}
+.bi-meter-col{text-align:center;}
+.bi-meter{width:22px;height:3px;background:#1a1a1a;border-radius:2px;overflow:hidden;}
+.bi-meter-fill{height:100%;border-radius:2px;}
+.bi-meter-label{font-size:0.4rem;color:#443;text-transform:uppercase;letter-spacing:0.5px;line-height:1;margin-top:1px;}
+
+/* MAP ELEMENTS */
+.zone{position:absolute;border-radius:50%;opacity:0.12;pointer-events:none;}
+.zone-label{position:absolute;font-family:'Bebas Neue',sans-serif;font-size:clamp(0.55rem,1vw,0.8rem);letter-spacing:3px;text-transform:uppercase;pointer-events:none;opacity:0.28;white-space:nowrap;}
+.axis-label{position:absolute;font-family:'Bebas Neue',sans-serif;font-size:clamp(0.48rem,0.85vw,0.65rem);letter-spacing:3px;text-transform:uppercase;opacity:0.2;pointer-events:none;}
+.axis-label.left{left:4px;top:50%;transform:rotate(-90deg) translateX(-50%);transform-origin:left center;}
+.axis-label.right{right:4px;top:50%;transform:rotate(90deg) translateX(50%);transform-origin:right center;}
+.axis-label.top{top:3px;left:50%;transform:translateX(-50%);}
+.axis-label.bottom{bottom:3px;left:50%;transform:translateX(-50%);}
+.grid-line{position:absolute;background:#ffffff05;pointer-events:none;}
+.grid-line.h{width:100%;height:1px;}.grid-line.v{height:100%;width:1px;}
+
+.band{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);z-index:10;}
+.band-dot{width:11px;height:11px;border-radius:50%;border:2px solid;transition:all 0.3s;position:relative;}
+.band-dot::after{content:'';position:absolute;top:-4px;left:-4px;right:-4px;bottom:-4px;border-radius:50%;border:1px solid;opacity:0;transition:opacity 0.3s;border-color:inherit;}
+.band:hover .band-dot::after,.band.selected .band-dot::after{opacity:0.5;}
+.band-lbl{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:0.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;opacity:0;transition:opacity 0.25s;text-shadow:0 1px 6px #000,0 0 12px #000;pointer-events:none;}
+.band:hover .band-lbl,.band.selected .band-lbl{opacity:1;}
+.band.dimmed{opacity:0.1;}
+.band.highlighted{z-index:100;transform:translate(-50%,-50%) scale(1.7);}
+.band.highlighted .band-lbl{opacity:1;}
+.band:hover{z-index:100;transform:translate(-50%,-50%) scale(1.4);}
+
+/* Detail panel */
+.detail-panel{position:absolute;bottom:-220px;left:6px;right:6px;background:var(--surface2);border:1px solid #333;border-bottom:none;border-radius:8px 8px 0 0;padding:10px 14px;transition:bottom 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:50;box-shadow:0 -8px 30px rgba(0,0,0,0.6);}
+.detail-panel.visible{bottom:0;}
+.detail-panel .close-btn{position:absolute;top:6px;right:10px;background:none;border:none;color:#665;font-size:1rem;cursor:pointer;}
+
+.dp-content{display:flex;gap:14px;align-items:flex-start;}
+.dp-left{flex:1;min-width:0;}
+.dp-right{flex:0 0 130px;}
+.dp-left h2{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;margin-bottom:2px;}
+.dp-left .genre-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
+.genre-tag{font-size:0.55rem;font-weight:600;padding:1px 6px;border-radius:2px;letter-spacing:1px;text-transform:uppercase;}
+.dp-left .desc{font-size:0.75rem;color:#aa9977;line-height:1.4;font-family:'Special Elite',cursive;}
+.meter-row{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.meter-label{font-size:0.55rem;letter-spacing:2px;text-transform:uppercase;color:#776;min-width:55px;font-weight:600;}
+.meter-bar{flex:1;height:4px;background:#222;border-radius:3px;overflow:hidden;}
+.meter-fill{height:100%;border-radius:3px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+
+/* Spotify embed row */
+.spotify-row{margin-top:8px;border-top:1px solid var(--border);padding-top:8px;display:flex;align-items:center;gap:10px;}
+.spotify-row iframe{border-radius:8px;flex-shrink:0;}
+.spotify-hint{font-size:0.6rem;color:#554;font-family:'Special Elite',cursive;letter-spacing:1px;}
+
+/* ========== COMMUNITY TAB ========== */
+.community-tab{flex-direction:column;overflow-y:auto;padding:0;}
+
+.community-scroll{flex:1;overflow-y:auto;padding:20px;max-width:700px;margin:0 auto;width:100%;scrollbar-width:thin;scrollbar-color:#333 transparent;}
+
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:4px;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.section-title .count{font-size:0.7rem;color:#665;background:#1a1a1a;padding:2px 10px;border-radius:10px;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;}
+
+/* COMMENTS */
+.comment-form{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;}
+.comment-form input,.comment-form textarea{background:var(--bg);border:1px solid #333;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;padding:7px 10px;border-radius:3px;outline:none;transition:border-color 0.2s;resize:vertical;}
+.comment-form input:focus,.comment-form textarea:focus{border-color:var(--gold-dim);}
+.comment-form input::placeholder,.comment-form textarea::placeholder{color:#555;}
+.comment-form textarea{min-height:60px;}
+.comment-form .form-row{display:flex;gap:8px;align-items:center;}
+.comment-form .char-count{font-size:0.6rem;color:#554;flex:1;}
+
+.submit-btn{background:var(--gold);color:var(--bg);border:none;font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:2px;padding:6px 18px;cursor:pointer;border-radius:3px;transition:all 0.2s;text-transform:uppercase;flex-shrink:0;}
+.submit-btn:hover{background:#e8b84e;}
+.submit-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+.form-error{font-size:0.7rem;color:#c44;margin-top:-4px;display:none;}
+.form-error.show{display:block;}
+
+.comment-list{display:flex;flex-direction:column;gap:8px;margin-bottom:30px;}
+
+.comment{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;}
+.comment-meta{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.comment-author{font-weight:700;font-size:0.82rem;color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;}
+.comment-time{font-size:0.6rem;color:#554;letter-spacing:1px;}
+.comment-band{font-size:0.6rem;color:#7a44aa;letter-spacing:1px;text-transform:uppercase;background:#7a44aa18;padding:1px 6px;border-radius:2px;}
+.comment-text{font-size:0.82rem;color:#bba;line-height:1.5;font-family:'Special Elite',cursive;}
+
+/* SUGGESTIONS */
+.suggest-form{display:flex;gap:8px;margin-bottom:16px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;}
+.suggest-form input{flex:1;background:var(--bg);border:1px solid #333;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;padding:7px 10px;border-radius:3px;outline:none;}
+.suggest-form input:focus{border-color:var(--gold-dim);}
+.suggest-form input::placeholder{color:#555;}
+
+.suggestion-list{display:flex;flex-direction:column;gap:6px;margin-bottom:30px;}
+
+.suggestion{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 14px;transition:border-color 0.2s;}
+.suggestion:hover{border-color:#333;}
+
+.vote-btn{display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;flex-shrink:0;background:none;border:none;padding:2px 6px;transition:all 0.2s;border-radius:4px;}
+.vote-btn:hover{background:#2a2520;}
+.vote-btn.voted{background:#d4a44a18;}
+.vote-arrow{font-size:0.9rem;color:#665;transition:color 0.2s;line-height:1;}
+.vote-btn.voted .vote-arrow{color:var(--gold);}
+.vote-count{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#887;letter-spacing:1px;line-height:1;}
+.vote-btn.voted .vote-count{color:var(--gold);}
+
+.suggest-info{flex:1;}
+.suggest-name{font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;}
+.suggest-by{font-size:0.6rem;color:#554;letter-spacing:1px;margin-top:1px;}
+.suggest-genre{font-size:0.6rem;color:#665;letter-spacing:1px;text-transform:uppercase;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:20px;color:#554;font-family:'Special Elite',cursive;font-size:0.85rem;letter-spacing:1px;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  :root{--sidebar-w:100vw;}
+  .map-wrapper.sidebar-open{margin-right:0;}
+  .dp-right{display:none;}
+  .spotify-row iframe{width:200px!important;}
+  .tab-btn{padding:6px 12px;font-size:0.75rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The Butt Rock Taxonomy</h1>
+  <div class="subtitle">An Interactive Field Guide — Est. 2026</div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('map')">Map</button>
+  <button class="tab-btn" onclick="switchTab('community')">Community</button>
+</nav>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()"><span id="toggleLabel">☰ Roster</span></button>
+
+<div class="controls-bar" id="controls"></div>
+
+<div class="main-layout">
+
+  <!-- MAP TAB -->
+  <div class="tab-page map-tab active" id="tabMap">
+    <div class="map-wrapper" id="mapWrapper">
+      <div class="map-container" id="map">
+        <div class="axis-label left">← Soft / Radio-Friendly</div>
+        <div class="axis-label right">Heavy / Aggressive →</div>
+        <div class="axis-label top">Peak Butt Rock ↑</div>
+        <div class="axis-label bottom">↓ Artistic / Genre-Defining</div>
+        <div class="detail-panel" id="detailPanel">
+          <button class="close-btn" onclick="closeDetail()">✕</button>
+          <div class="dp-content">
+            <div class="dp-left">
+              <h2 id="dpName"></h2>
+              <div class="genre-tags" id="dpTags"></div>
+              <p class="desc" id="dpDesc"></p>
+            </div>
+            <div class="dp-right">
+              <div class="meter-row"><span class="meter-label">Heavy</span><div class="meter-bar"><div class="meter-fill" id="mH" style="background:var(--red);width:0%"></div></div></div>
+              <div class="meter-row"><span class="meter-label">Butt Rock</span><div class="meter-bar"><div class="meter-fill" id="mB" style="background:var(--gold);width:0%"></div></div></div>
+              <div class="meter-row"><span class="meter-label">Artistry</span><div class="meter-bar"><div class="meter-fill" id="mA" style="background:var(--green);width:0%"></div></div></div>
+            </div>
+          </div>
+          <div class="spotify-row" id="spotifyRow" style="display:none;">
+            <iframe id="spotifyEmbed" src="" width="300" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <span class="spotify-hint">30-sec preview · no login needed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMUNITY TAB -->
+  <div class="tab-page community-tab" id="tabCommunity">
+    <div class="community-scroll">
+
+      <!-- SUGGEST A BAND -->
+      <div class="section-title">Suggest a Band <span class="count" id="suggestCount">0</span></div>
+      <div class="suggest-form" id="suggestForm">
+        <input type="text" id="suggestName" placeholder="Your name" style="flex:0 0 120px;" maxlength="30">
+        <input type="text" id="suggestBand" placeholder="Band name" maxlength="60">
+        <input type="text" id="suggestGenre" placeholder="Genre (optional)" style="flex:0 0 120px;" maxlength="30">
+        <button class="submit-btn" onclick="submitSuggestion()">Suggest</button>
+      </div>
+      <div class="suggestion-list" id="suggestionList"></div>
+
+      <!-- COMMENTS / DISCUSSION -->
+      <div class="section-title">Discussion <span class="count" id="commentCount">0</span></div>
+      <div class="comment-form" id="commentForm">
+        <input type="text" id="commenterName" placeholder="Your name *" maxlength="30">
+        <div class="form-error" id="nameError">Please enter your name to comment.</div>
+        <textarea id="commentText" placeholder="Share your hot take on a band's placement, argue about genre boundaries, or just yell about butt rock..." maxlength="500"></textarea>
+        <div class="form-row">
+          <select id="commentBand" style="background:var(--bg);border:1px solid #333;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;padding:5px 8px;border-radius:3px;outline:none;flex:1;">
+            <option value="">Tag a band (optional)</option>
+          </select>
+          <span class="char-count" id="charCount">0/500</span>
+          <button class="submit-btn" id="commentSubmitBtn" onclick="submitComment()">Post</button>
+        </div>
+      </div>
+      <div class="comment-list" id="commentList"></div>
+
+    </div>
+  </div>
+
+  <!-- SIDEBAR (always present, overlays) -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Full Roster</h2>
+      <input type="text" class="search-box" id="searchBox" placeholder="Search bands or genres..." oninput="onSearch()">
+      <div class="sort-row">
+        <button class="sort-btn active" data-sort="segment" onclick="setSort('segment')">Tier</button>
+        <button class="sort-btn" data-sort="alpha" onclick="setSort('alpha')">A–Z</button>
+        <button class="sort-btn" data-sort="heavy" onclick="setSort('heavy')">Heavy</button>
+        <button class="sort-btn" data-sort="butt" onclick="setSort('butt')">Butt Rock</button>
+        <button class="sort-btn" data-sort="art" onclick="setSort('art')">Artistry</button>
+      </div>
+    </div>
+    <div class="stats-bar" id="statsBar"></div>
+    <div class="band-list" id="bandList"></div>
+  </div>
+</div>
+
+<script>
+// =============== DATA ===============
+const GENRES={
+  'Butt Rock':{color:'#d4a44a'},'Post-Grunge':{color:'#c47730'},'Nu Metal':{color:'#c44444'},
+  'Alt Metal':{color:'#7a44aa'},'Grunge':{color:'#448866'},'Hard Rock':{color:'#cc6633'},
+  'Metalcore':{color:'#aa3355'},'Rap Rock':{color:'#5577cc'},'Arena Rock':{color:'#cc9944'},
+  'Experimental':{color:'#44aaaa'},
+};
+
+const SEGMENTS=[
+  {id:'peak',name:'Peak Butt Rock',color:'#d4a44a',test:b=>b.y>=85},
+  {id:'heavy-br',name:'Heavy Butt Rock',color:'#cc6633',test:b=>b.y>=70&&b.y<85&&b.x>=55},
+  {id:'soft-br',name:'Soft / Radio Butt Rock',color:'#c47730',test:b=>b.y>=65&&b.y<85&&b.x<55},
+  {id:'gray',name:'The Gray Zone',color:'#887755',test:b=>b.y>=40&&b.y<70},
+  {id:'artistic',name:'Artistic / Heavy',color:'#7a44aa',test:b=>b.y<40&&b.x>=55},
+  {id:'grunge',name:'Grunge & Origins',color:'#448866',test:b=>b.y<40&&b.x<55},
+];
+
+function getSegment(b){for(const s of SEGMENTS)if(s.test(b))return s;return SEGMENTS[5];}
+
+// Spotify artist IDs for embedded player
+const SPOTIFY={
+  'Nickelback':'2eeE8dUTWN9KQKe14jBZ4T','Creed':'6d24kC5fxHFOSEAmjQPPhc',
+  '3 Doors Down':'2JEbJHBCbPvSCM3bRwMxMa','Hinder':'0JQiXezFz0MJWV9UNcFVSW',
+  'Theory of a Deadman':'2XnBwblw31dfGnspMIwgWz','Puddle of Mudd':'0TMnMGBfDmMwAGaSRgpcUC',
+  'Buckcherry':'0R0TcxfSE8hBU7rUBwVhfE','Trapt':'5I3VPDOvCpQHz08GOxUFql',
+  'Five Finger Death Punch':'5t28BP42x2axFnqOLMVlYm','Saving Abel':'1gRJexX7TFrXEEJPdh3jVo',
+  'Godsmack':'3t5xRXzsuZmMDkQzgOX35S','Three Days Grace':'2xiIXseIJcq3nG7C8fHyO3',
+  'Shinedown':'70BYFdaZbEKbeauJ670ysQ','Disturbed':'3TOqt5oJwL9BE2o7Q1UrIa',
+  'Saliva':'6JW8wliOEwaDZ231ZY6n1B','Daughtry':'1uQWmt1OhuHGRKmZ2ZcL6p',
+  'Lifehouse':'7mFVLkEDT3u92KcBGiIQ3R','Drowning Pool':'0YLVq65SKGDB3XGgFFSd0q',
+  'Default':'7d3XVLGI7a9Mh4VqIyDNqL','Papa Roach':'4RddZ3iHvSpGV4dvATac9X',
+  'Fuel':'7w29UYBi0qsHi5RTcv3lmA','Crossfade':'2w9zwKO2U8T6iPEB7zyeWT',
+  'Staind':'0MJBSF0omhrPaeBXax0bxR','Hoobastank':'20s0P9QLxGqKuCsGwFV1KH',
+  'Sick Puppies':'0RWynEdqlZZ8JHwedXNqkv','Seether':'6B5c4sch27tWHAGdarpPaW',
+  'Breaking Benjamin':'5BtHciL0e0BrFseMEJYEMI','Limp Bizkit':'165ZgPlLkK7bf5bDoFc6Ps',
+  'Finger Eleven':'5T9KMqWMJLkSTWMDGKBWPH','Skillet':'0eDvMgVFoNV3TpwtrVCoTj',
+  'P.O.D.':'1LwDaNsLvGKHlsJOphNfcv','Red':'3tPoCdM5bSyXbeFRQhEGUV',
+  'Alter Bridge':'13KSGLDBbcFlfMaBb7jkrb','Taproot':'5pHgGDznJJuPIpNPLvh3gm',
+  'Chevelle':'0BShaqDBDmMbBwub2lnIj4','Cold':'3AO3I4h5ZNppOC3JzEIYzV',
+  'Evanescence':'5nGIFgo0shDenQYSE0Writ','10 Years':'7sTIs0cRAQpajPHKbR0q0j',
+  'Linkin Park':'6XyY86QOPPrYVGvF9ch6wz','Avenged Sevenfold':'0p4nmQO2msCgU4IF37Wi3j',
+  'Bush':'3bhjJBITayYFjccHJzlfTP','Incubus':'3YcBF2ttyueytpXtEzn1Za',
+  'Slipknot':'05fG473RIxrVXzjQT3NRAO','Korn':'3RNrq3jvMZxD9ZyoOZbQOD',
+  'Mudvayne':'3TIkzEfJhYBpThVQl7W9LJ','Stone Temple Pilots':'1tqhsYv8yBBdwANFNzHtcr',
+  'Deftones':'6Ghvu1VvMGScGpOUJBAHNH','System of a Down':'5eAWCfyUhZtHHtBdNk56l1',
+  'A Perfect Circle':'0Wxy7TOniMoMl1xmpEW2qG','Pearl Jam':'1dfeR4HaWDbWqFHLkxsg1d',
+  'Soundgarden':'4MFYP1I2WULD16UrChb2Ll','Alice in Chains':'64tNsm6TnZe2zpcMVMOoHL',
+  'Tool':'2yEwvVSSSUkcLeSTNyHKh8',
+};
+
+const BANDS=[
+  {name:'Nickelback',x:45,y:95,genres:['Butt Rock','Post-Grunge'],artistry:15,desc:'Ground zero. The gravitational center of butt rock.'},
+  {name:'Creed',x:42,y:93,genres:['Butt Rock','Post-Grunge'],artistry:18,desc:'Scott Stapp\'s arms-wide-open yearning practically invented the archetype.'},
+  {name:'3 Doors Down',x:40,y:90,genres:['Butt Rock','Post-Grunge'],artistry:20,desc:'Kryptonite is inescapable. Pure, distilled, formula-driven butt rock.'},
+  {name:'Hinder',x:44,y:96,genres:['Butt Rock'],artistry:10,desc:'"Lips of an Angel" is basically the butt rock Sistine Chapel.'},
+  {name:'Theory of a Deadman',x:46,y:92,genres:['Butt Rock','Post-Grunge'],artistry:14,desc:'Nickelback\'s slightly edgier cousin. Same family reunion.'},
+  {name:'Puddle of Mudd',x:48,y:88,genres:['Butt Rock','Post-Grunge'],artistry:16,desc:'Wes Scantlin: grunge cosplay as performance art.'},
+  {name:'Buckcherry',x:55,y:87,genres:['Butt Rock','Hard Rock'],artistry:18,desc:'"Crazy Bitch" — the thesis statement of an entire subculture.'},
+  {name:'Trapt',x:50,y:86,genres:['Butt Rock','Post-Grunge'],artistry:12,desc:'"Headstrong" and a Twitter account. That\'s it. That\'s the band.'},
+  {name:'Five Finger Death Punch',x:72,y:85,genres:['Hard Rock','Butt Rock'],artistry:15,desc:'Monster Energy in band form. The official band of tribal tattoos.'},
+  {name:'Saving Abel',x:42,y:82,genres:['Butt Rock'],artistry:12,desc:'"Addicted" — southern-fried butt rock with a side of regret.'},
+  {name:'Godsmack',x:65,y:82,genres:['Hard Rock','Butt Rock'],artistry:25,desc:'Alice in Chains at home from Walmart, but genuinely heavy.'},
+  {name:'Three Days Grace',x:55,y:83,genres:['Butt Rock','Post-Grunge'],artistry:25,desc:'"I Hate Everything About You" — butt rock emotion at max volume.'},
+  {name:'Shinedown',x:58,y:80,genres:['Butt Rock','Hard Rock'],artistry:30,desc:'More polished than most. Brent Smith actually has pipes.'},
+  {name:'Disturbed',x:68,y:78,genres:['Alt Metal','Butt Rock'],artistry:28,desc:'OOH-WAH-AH-AH-AH. David Draiman\'s chin piercings carry the genre.'},
+  {name:'Saliva',x:55,y:78,genres:['Hard Rock','Butt Rock'],artistry:18,desc:'"Click Click Boom" — basically a Monster Truck Rally theme song.'},
+  {name:'Daughtry',x:30,y:78,genres:['Butt Rock','Post-Grunge'],artistry:22,desc:'American Idol → straight to the butt rock pipeline.'},
+  {name:'Lifehouse',x:25,y:75,genres:['Post-Grunge','Butt Rock'],artistry:28,desc:'Hanging by a moment between butt rock and adult contemporary.'},
+  {name:'Drowning Pool',x:68,y:75,genres:['Nu Metal','Butt Rock'],artistry:18,desc:'"Bodies" — floor, hit, let, etc. You know the words.'},
+  {name:'Default',x:38,y:74,genres:['Post-Grunge','Butt Rock'],artistry:22,desc:'Canadian butt rock. Like Nickelback but somehow more forgotten.'},
+  {name:'Papa Roach',x:60,y:72,genres:['Nu Metal','Butt Rock'],artistry:25,desc:'Started nu metal, evolved into butt rock. "Last Resort" transcends both.'},
+  {name:'Fuel',x:35,y:70,genres:['Post-Grunge'],artistry:32,desc:'"Shimmer" has more depth than the chart position suggests.'},
+  {name:'Crossfade',x:48,y:65,genres:['Post-Grunge','Butt Rock'],artistry:25,desc:'"Cold" was everywhere in 2004 and then — silence.'},
+  {name:'Staind',x:55,y:62,genres:['Post-Grunge','Nu Metal'],artistry:38,desc:'Aaron Lewis went from nu-metal vulnerability to country butt rock.'},
+  {name:'Hoobastank',x:40,y:60,genres:['Post-Grunge','Alt Metal'],artistry:30,desc:'"The Reason" lives in your head rent-free whether you like it or not.'},
+  {name:'Sick Puppies',x:52,y:60,genres:['Post-Grunge','Hard Rock'],artistry:32,desc:'Australian post-grunge. "You\'re Going Down" goes hard.'},
+  {name:'Seether',x:58,y:58,genres:['Post-Grunge','Alt Metal'],artistry:45,desc:'South African grunge revival. Darker roots than the surface suggests.'},
+  {name:'Breaking Benjamin',x:62,y:55,genres:['Alt Metal','Post-Grunge'],artistry:50,desc:'Heavy enough to escape pure butt rock, but the radio loves them.'},
+  {name:'Limp Bizkit',x:60,y:55,genres:['Nu Metal','Rap Rock'],artistry:20,desc:'Fred Durst did it all for the nookie. We\'re still processing that.'},
+  {name:'Finger Eleven',x:38,y:55,genres:['Post-Grunge','Butt Rock'],artistry:35,desc:'"Paralyzer" — the butt rock song people don\'t realize is butt rock.'},
+  {name:'Skillet',x:58,y:55,genres:['Hard Rock','Alt Metal'],artistry:30,desc:'Christian butt rock. "Monster" and "Hero" for youth group arenas.'},
+  {name:'P.O.D.',x:55,y:52,genres:['Rap Rock','Nu Metal'],artistry:35,desc:'"Boom" and "Alive." Christian rap-rock with surprising staying power.'},
+  {name:'Red',x:55,y:48,genres:['Alt Metal','Post-Grunge'],artistry:40,desc:'Cinematic post-grunge with strings. The dramatic one.'},
+  {name:'Alter Bridge',x:60,y:48,genres:['Hard Rock','Alt Metal'],artistry:58,desc:'Creed\'s guitarist + actual talent = surprisingly good.'},
+  {name:'Taproot',x:62,y:48,genres:['Nu Metal','Alt Metal'],artistry:40,desc:'"Poem" was huge. Then the nu metal tide went out.'},
+  {name:'Chevelle',x:65,y:45,genres:['Alt Metal','Post-Grunge'],artistry:55,desc:'Tool-lite. Too artsy for butt rock, too radio for metal kids.'},
+  {name:'Cold',x:58,y:42,genres:['Nu Metal','Post-Grunge'],artistry:45,desc:'Darker nu-metal that never quite broke through.'},
+  {name:'Evanescence',x:50,y:40,genres:['Alt Metal','Post-Grunge'],artistry:60,desc:'Gothic piano metal. Amy Lee brought classical chops to Hot Topic.'},
+  {name:'10 Years',x:52,y:38,genres:['Alt Metal','Post-Grunge'],artistry:55,desc:'"Wasteland" is moody and beautiful. Underappreciated.'},
+  {name:'Linkin Park',x:58,y:35,genres:['Nu Metal','Rap Rock'],artistry:65,desc:'Started nu metal, transcended everything. Hybrid Theory is a monument.'},
+  {name:'Avenged Sevenfold',x:75,y:30,genres:['Metalcore','Hard Rock'],artistry:65,desc:'Metalcore → arena metal. Synyster Gates is genuinely elite.'},
+  {name:'Bush',x:52,y:28,genres:['Post-Grunge'],artistry:50,desc:'British grunge? Gavin Rossdale walked so Nickelback could run.'},
+  {name:'Incubus',x:42,y:22,genres:['Alt Metal','Post-Grunge'],artistry:70,desc:'Funk-metal → dreamy alt rock. Brandon Boyd\'s voice is too good.'},
+  {name:'Slipknot',x:90,y:20,genres:['Nu Metal','Alt Metal'],artistry:75,desc:'Nine masked Iowans. Too angry, weird, theatrical for butt rock.'},
+  {name:'Korn',x:82,y:18,genres:['Nu Metal'],artistry:72,desc:'Invented nu metal. The 7-string drop-tuned riff factory.'},
+  {name:'Mudvayne',x:88,y:15,genres:['Nu Metal','Experimental'],artistry:80,desc:'Math metal in clown paint. "Dig" is way more complex than it sounds.'},
+  {name:'Stone Temple Pilots',x:55,y:15,genres:['Grunge','Hard Rock'],artistry:82,desc:'The most underrated grunge band. Scott Weiland was a chameleon.'},
+  {name:'Deftones',x:78,y:12,genres:['Alt Metal','Experimental'],artistry:92,desc:'Shoegaze metal. Chino Moreno makes heaviness beautiful. Not butt rock.'},
+  {name:'System of a Down',x:80,y:8,genres:['Alt Metal','Experimental'],artistry:95,desc:'Armenian prog-metal chaos. Absolutely nothing formulaic about them.'},
+  {name:'A Perfect Circle',x:65,y:8,genres:['Alt Metal','Experimental'],artistry:90,desc:'Maynard\'s moodier project. Art rock pretending to be accessible.'},
+  {name:'Pearl Jam',x:45,y:8,genres:['Grunge'],artistry:90,desc:'Eddie Vedder\'s mumble launched a thousand imitators. None matched.'},
+  {name:'Soundgarden',x:70,y:6,genres:['Grunge'],artistry:94,desc:'Chris Cornell\'s 4-octave range over Black Sabbath riffs. Untouchable.'},
+  {name:'Alice in Chains',x:72,y:5,genres:['Grunge'],artistry:95,desc:'Layne Staley\'s harmonies over doom riffs. Grunge royalty.'},
+  {name:'Tool',x:75,y:5,genres:['Alt Metal','Experimental'],artistry:98,desc:'Fibonacci riffs and third-eye aesthetics. The anti-butt-rock.'},
+];
+
+BANDS.forEach(b=>{b.segment=getSegment(b);});
+
+// =============== STATE ===============
+let activeFilter='All',currentSort='segment',searchQuery='',selectedBandIdx=null,sidebarOpen=false;
+let comments=[],suggestions=[],myVotes=new Set();
+
+// =============== DOM REFS ===============
+const mapEl=document.getElementById('map'),controlsEl=document.getElementById('controls'),
+bandListEl=document.getElementById('bandList'),sidebarEl=document.getElementById('sidebar'),
+mapWrapperEl=document.getElementById('mapWrapper'),statsBarEl=document.getElementById('statsBar'),
+detailPanelEl=document.getElementById('detailPanel');
+
+// =============== STORAGE ===============
+async function loadData(){
+  try{
+    const cr=await window.storage.get('buttrock-comments',true);
+    if(cr)comments=JSON.parse(cr.value);
+  }catch(e){comments=[];}
+  try{
+    const sr=await window.storage.get('buttrock-suggestions',true);
+    if(sr)suggestions=JSON.parse(sr.value);
+  }catch(e){suggestions=[];}
+  try{
+    const vr=await window.storage.get('buttrock-myvotes');
+    if(vr)myVotes=new Set(JSON.parse(vr.value));
+  }catch(e){myVotes=new Set();}
+}
+
+async function saveComments(){
+  try{await window.storage.set('buttrock-comments',JSON.stringify(comments),true);}catch(e){console.error('Save comments failed',e);}
+}
+async function saveSuggestions(){
+  try{await window.storage.set('buttrock-suggestions',JSON.stringify(suggestions),true);}catch(e){console.error('Save suggestions failed',e);}
+}
+async function saveMyVotes(){
+  try{await window.storage.set('buttrock-myvotes',JSON.stringify([...myVotes]));}catch(e){console.error('Save votes failed',e);}
+}
+
+// =============== INIT ===============
+async function init(){
+  await loadData();
+  buildMap();
+  buildControls();
+  buildStats();
+  buildSidebar();
+  populateBandSelect();
+  renderComments();
+  renderSuggestions();
+  document.getElementById('commentText').addEventListener('input',()=>{
+    document.getElementById('charCount').textContent=`${document.getElementById('commentText').value.length}/500`;
+  });
+}
+
+// =============== TABS ===============
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',
+    (tab==='map'&&i===0)||(tab==='community'&&i===1)));
+  document.getElementById('tabMap').classList.toggle('active',tab==='map');
+  document.getElementById('tabCommunity').classList.toggle('active',tab==='community');
+  document.getElementById('sidebarToggle').style.display=tab==='map'?'':'none';
+  document.querySelector('.controls-bar').style.display=tab==='map'?'':'none';
+}
+
+// =============== MAP ===============
+function buildMap(){
+  const zones=[
+    {label:'Butt Rock Zone',cx:42,cy:18,rx:28,ry:22,color:'#d4a44a'},
+    {label:'Nu Metal',cx:72,cy:68,rx:22,ry:25,color:'#c44444'},
+    {label:'Post-Grunge',cx:38,cy:45,rx:25,ry:22,color:'#c47730'},
+    {label:'Grunge Origins',cx:58,cy:90,rx:22,ry:12,color:'#448866'},
+    {label:'Alt Metal',cx:68,cy:55,rx:20,ry:22,color:'#7a44aa'},
+    {label:'Experimental',cx:80,cy:88,rx:16,ry:14,color:'#44aaaa'},
+  ];
+  zones.forEach(z=>{
+    const el=document.createElement('div');el.className='zone';
+    el.style.cssText=`left:${z.cx-z.rx}%;top:${(100-z.cy)-z.ry}%;width:${z.rx*2}%;height:${z.ry*2}%;background:radial-gradient(ellipse,${z.color}66,transparent 70%);`;
+    mapEl.appendChild(el);
+    const lbl=document.createElement('div');lbl.className='zone-label';lbl.textContent=z.label;
+    lbl.style.cssText=`left:${z.cx}%;top:${100-z.cy}%;transform:translate(-50%,-50%);color:${z.color};`;
+    mapEl.appendChild(lbl);
+  });
+  for(let i=25;i<=75;i+=25){
+    let h=document.createElement('div');h.className='grid-line h';h.style.top=`${i}%`;mapEl.appendChild(h);
+    let v=document.createElement('div');v.className='grid-line v';v.style.left=`${i}%`;mapEl.appendChild(v);
+  }
+  BANDS.forEach((band,i)=>{
+    const el=document.createElement('div');el.className='band';el.dataset.index=i;
+    el.style.left=`${5+band.x*0.9}%`;el.style.top=`${5+(100-band.y)*0.9}%`;
+    const color=GENRES[band.genres[0]]?.color||'#888';
+    el.innerHTML=`<div class="band-lbl" style="color:${color}">${band.name}</div><div class="band-dot" style="border-color:${color};background:${color}33;"></div>`;
+    el.addEventListener('click',e=>{e.stopPropagation();selectBand(i);});
+    mapEl.appendChild(el);
+  });
+  mapEl.addEventListener('click',e=>{if(e.target===mapEl||e.target.classList.contains('zone')||e.target.classList.contains('grid-line'))closeDetail();});
+}
+
+function buildControls(){
+  ['All',...Object.keys(GENRES)].forEach(g=>{
+    const btn=document.createElement('button');btn.className=`filter-btn${g==='All'?' active':''}`;
+    btn.textContent=g;if(g!=='All')btn.style.borderColor=GENRES[g].color+'66';
+    btn.addEventListener('click',()=>{activeFilter=g;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');applyFilter();});
+    controlsEl.appendChild(btn);
+  });
+}
+
+function buildStats(){
+  const c={};SEGMENTS.forEach(s=>c[s.id]=0);BANDS.forEach(b=>c[b.segment.id]++);
+  statsBarEl.innerHTML=SEGMENTS.map(s=>{
+    const sn=s.name.replace('Soft / Radio ','Radio ').replace('Artistic / ','').replace('Grunge & ','');
+    return `<div class="stat-block"><div class="stat-num" style="color:${s.color}">${c[s.id]}</div><div class="stat-label">${sn}</div></div>`;
+  }).join('');
+}
+
+function buildSidebar(){
+  const filtered=getFilteredSorted();bandListEl.innerHTML='';
+  if(currentSort==='segment'){
+    SEGMENTS.forEach(seg=>{
+      const sb=filtered.filter(b=>b.band.segment.id===seg.id);if(!sb.length)return;
+      const g=document.createElement('div');g.className='segment-group';
+      g.innerHTML=`<div class="segment-header" onclick="this.parentElement.classList.toggle('collapsed')"><div class="seg-color" style="background:${seg.color}"></div><span class="seg-name" style="color:${seg.color}">${seg.name}</span><span class="seg-count">${sb.length}</span><span class="seg-chevron">▼</span></div><div class="segment-items"></div>`;
+      const items=g.querySelector('.segment-items');sb.forEach(({band,idx})=>items.appendChild(createBandItem(band,idx)));
+      bandListEl.appendChild(g);
+    });
+  }else{
+    const w=document.createElement('div');w.className='segment-items';
+    filtered.forEach(({band,idx})=>w.appendChild(createBandItem(band,idx)));bandListEl.appendChild(w);
+  }
+}
+
+function createBandItem(band,idx){
+  const color=GENRES[band.genres[0]]?.color||'#888';
+  const el=document.createElement('div');el.className=`band-item${selectedBandIdx===idx?' active':''}`;el.dataset.index=idx;
+  el.innerHTML=`<div class="bi-dot" style="border-color:${color};background:${color}33"></div><div class="bi-info"><div class="bi-name" style="color:${color}">${band.name}</div><div class="bi-genres">${band.genres.join(' · ')}</div></div><div class="bi-meters"><div class="bi-meter-col"><div class="bi-meter"><div class="bi-meter-fill" style="width:${band.x}%;background:var(--red)"></div></div><div class="bi-meter-label">H</div></div><div class="bi-meter-col"><div class="bi-meter"><div class="bi-meter-fill" style="width:${band.y}%;background:var(--gold)"></div></div><div class="bi-meter-label">BR</div></div><div class="bi-meter-col"><div class="bi-meter"><div class="bi-meter-fill" style="width:${band.artistry}%;background:var(--green)"></div></div><div class="bi-meter-label">A</div></div></div>`;
+  el.addEventListener('click',()=>selectBand(idx));
+  el.addEventListener('mouseenter',()=>highlightMapDot(idx,true));
+  el.addEventListener('mouseleave',()=>highlightMapDot(idx,false));
+  return el;
+}
+
+function getFilteredSorted(){
+  let items=BANDS.map((band,idx)=>({band,idx}));
+  if(searchQuery){const q=searchQuery.toLowerCase();items=items.filter(({band})=>band.name.toLowerCase().includes(q)||band.genres.some(g=>g.toLowerCase().includes(q)));}
+  if(activeFilter!=='All')items=items.filter(({band})=>band.genres.includes(activeFilter));
+  if(currentSort==='alpha')items.sort((a,b)=>a.band.name.localeCompare(b.band.name));
+  else if(currentSort==='heavy')items.sort((a,b)=>b.band.x-a.band.x);
+  else if(currentSort==='butt')items.sort((a,b)=>b.band.y-a.band.y);
+  else if(currentSort==='art')items.sort((a,b)=>b.band.artistry-a.band.artistry);
+  return items;
+}
+
+function applyFilter(){
+  document.querySelectorAll('.band').forEach(el=>{const b=BANDS[el.dataset.index];el.classList.toggle('dimmed',activeFilter!=='All'&&!b.genres.includes(activeFilter));});
+  buildSidebar();
+}
+function setSort(s){currentSort=s;document.querySelectorAll('.sort-btn').forEach(b=>b.classList.toggle('active',b.dataset.sort===s));buildSidebar();}
+function onSearch(){searchQuery=document.getElementById('searchBox').value;buildSidebar();}
+
+function selectBand(idx){
+  selectedBandIdx=idx;const band=BANDS[idx];const color=GENRES[band.genres[0]]?.color||'#888';
+  document.getElementById('dpName').textContent=band.name;document.getElementById('dpName').style.color=color;
+  document.getElementById('dpTags').innerHTML=band.genres.map(g=>{const c=GENRES[g]?.color||'#888';return `<span class="genre-tag" style="background:${c}22;color:${c};border:1px solid ${c}44">${g}</span>`;}).join('');
+  document.getElementById('dpDesc').textContent=band.desc;
+  setTimeout(()=>{document.getElementById('mH').style.width=`${band.x}%`;document.getElementById('mB').style.width=`${band.y}%`;document.getElementById('mA').style.width=`${band.artistry}%`;},50);
+
+  // Spotify embed
+  const spotifyId=SPOTIFY[band.name];const sr=document.getElementById('spotifyRow');const se=document.getElementById('spotifyEmbed');
+  if(spotifyId){sr.style.display='flex';se.src=`https://open.spotify.com/embed/artist/${spotifyId}?utm_source=generator&theme=0`;
+  }else{sr.style.display='none';se.src='';}
+
+  detailPanelEl.classList.add('visible');
+  document.querySelectorAll('.band').forEach(el=>el.classList.remove('selected'));
+  document.querySelector(`.band[data-index="${idx}"]`)?.classList.add('selected');
+  document.querySelectorAll('.band-item').forEach(el=>el.classList.toggle('active',parseInt(el.dataset.index)===idx));
+  const ai=document.querySelector(`.band-item[data-index="${idx}"]`);if(ai)ai.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeDetail(){
+  detailPanelEl.classList.remove('visible');
+  document.querySelectorAll('.band').forEach(el=>el.classList.remove('selected'));
+  document.querySelectorAll('.band-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('spotifyEmbed').src='';selectedBandIdx=null;
+}
+function highlightMapDot(idx,on){const d=document.querySelector(`.band[data-index="${idx}"]`);if(d)d.classList.toggle('highlighted',on);}
+function toggleSidebar(){sidebarOpen=!sidebarOpen;sidebarEl.classList.toggle('open',sidebarOpen);mapWrapperEl.classList.toggle('sidebar-open',sidebarOpen);document.getElementById('toggleLabel').textContent=sidebarOpen?'✕ Close':'☰ Roster';}
+
+// =============== COMMUNITY: COMMENTS ===============
+function populateBandSelect(){
+  const sel=document.getElementById('commentBand');
+  BANDS.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(b=>{
+    const opt=document.createElement('option');opt.value=b.name;opt.textContent=b.name;sel.appendChild(opt);
+  });
+}
+
+function submitComment(){
+  const name=document.getElementById('commenterName').value.trim();
+  const text=document.getElementById('commentText').value.trim();
+  const band=document.getElementById('commentBand').value;
+  const nameErr=document.getElementById('nameError');
+
+  if(!name){nameErr.classList.add('show');document.getElementById('commenterName').focus();return;}
+  nameErr.classList.remove('show');
+  if(!text)return;
+
+  comments.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),author:name,text,band,time:Date.now()});
+  saveComments();
+  renderComments();
+  document.getElementById('commentText').value='';document.getElementById('charCount').textContent='0/500';
+}
+
+function renderComments(){
+  const list=document.getElementById('commentList');
+  document.getElementById('commentCount').textContent=comments.length;
+  if(!comments.length){list.innerHTML='<div class="empty-state">No comments yet. Be the first to argue about genre boundaries.</div>';return;}
+  list.innerHTML=comments.map(c=>{
+    const ago=timeAgo(c.time);
+    return `<div class="comment"><div class="comment-meta"><span class="comment-author">${esc(c.author)}</span>${c.band?`<span class="comment-band">${esc(c.band)}</span>`:''}<span class="comment-time">${ago}</span></div><div class="comment-text">${esc(c.text)}</div></div>`;
+  }).join('');
+}
+
+// =============== COMMUNITY: SUGGESTIONS ===============
+function submitSuggestion(){
+  const name=document.getElementById('suggestName').value.trim();
+  const band=document.getElementById('suggestBand').value.trim();
+  const genre=document.getElementById('suggestGenre').value.trim();
+  if(!name||!band)return;
+
+  suggestions.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),band,genre,by:name,votes:1,time:Date.now()});
+  myVotes.add(suggestions[0].id);
+  saveSuggestions();saveMyVotes();renderSuggestions();
+  document.getElementById('suggestBand').value='';document.getElementById('suggestGenre').value='';
+}
+
+function toggleVote(id){
+  const s=suggestions.find(x=>x.id===id);if(!s)return;
+  if(myVotes.has(id)){s.votes=Math.max(0,s.votes-1);myVotes.delete(id);}
+  else{s.votes++;myVotes.add(id);}
+  saveSuggestions();saveMyVotes();renderSuggestions();
+}
+
+function renderSuggestions(){
+  const list=document.getElementById('suggestionList');
+  document.getElementById('suggestCount').textContent=suggestions.length;
+  if(!suggestions.length){list.innerHTML='<div class="empty-state">No suggestions yet. Know a band that belongs on the map?</div>';return;}
+  const sorted=[...suggestions].sort((a,b)=>b.votes-a.votes);
+  list.innerHTML=sorted.map(s=>{
+    const voted=myVotes.has(s.id);
+    return `<div class="suggestion"><button class="vote-btn${voted?' voted':''}" onclick="toggleVote('${s.id}')"><span class="vote-arrow">▲</span><span class="vote-count">${s.votes}</span></button><div class="suggest-info"><div class="suggest-name">${esc(s.band)}</div><div class="suggest-by">by ${esc(s.by)}${s.genre?' · <span class="suggest-genre">'+esc(s.genre)+'</span>':''}</div></div></div>`;
+  }).join('');
+}
+
+// =============== UTILS ===============
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function timeAgo(ts){
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';
+}
+
+init();
+</script>
+</body>
+</html>

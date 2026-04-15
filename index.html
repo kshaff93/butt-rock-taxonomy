@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Butt Rock Taxonomy</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --gold:#d4a44a;--gold-dim:#8b6914;
+  --bg:#07050302;--surface:#0f0d09;--surface2:#161210;
+  --border:#1e1a15;--text:#e8dece;--text-dim:#8a7755;
+  --red:#cc4444;--green:#44aa88;
+  --sb-w:320px;
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:#07050302;
+  background-color:#080604;
+  color:var(--text);
+  font-family:'Barlow Condensed',sans-serif;
+  display:flex;flex-direction:column;height:100vh;
+}
+
+/* ── noise overlay ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity:0.05;mix-blend-mode:screen;
+}
+
+/* ── header ── */
+header{
+  flex-shrink:0;text-align:center;
+  padding:10px 20px 7px;
+  background:linear-gradient(180deg,#130f08 0%,transparent 100%);
+  position:relative;
+}
+header::after{
+  content:'';position:absolute;bottom:0;left:8%;right:8%;height:1px;
+  background:linear-gradient(90deg,transparent,#8b691466,transparent);
+}
+header h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.9rem,4.2vw,3rem);
+  letter-spacing:10px;text-transform:uppercase;
+  background:linear-gradient(180deg,#f8ead8 0%,#d4a44a 48%,#6a4008 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1.0;
+}
+header .sub{
+  font-family:'Special Elite',cursive;
+  font-size:clamp(0.52rem,0.85vw,0.68rem);
+  color:var(--text-dim);letter-spacing:4px;
+  text-transform:uppercase;margin-top:3px;
+}
+
+/* ── filter bar ── */
+.filter-bar{
+  flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;gap:4px;
+  padding:5px 14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.fbtn{
+  background:transparent;border:1px solid #28221a;
+  color:#665544;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.67rem;font-weight:700;padding:2px 9px;
+  cursor:pointer;text-transform:uppercase;letter-spacing:1.5px;
+  transition:all 0.18s;border-radius:2px;
+}
+.fbtn:hover{background:#1e180f;color:#aa8855;border-color:#3a2f1a;}
+.fbtn.active{
+  color:#080604;
+  background:var(--c,#d4a44a);
+  border-color:var(--c,#d4a44a);
+}
+
+/* ── map area ── */
+.map-area{flex:1;position:relative;overflow:hidden;min-height:0;}
+#mapsvg{display:block;width:100%;height:100%;cursor:default;}
+
+/* ── dot groups ── */
+.band-g{cursor:pointer;}
+.dot-inner{
+  transform-box:fill-box;transform-origin:center;
+  transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.band-g.hov .dot-inner,
+.band-g.sel .dot-inner{transform:scale(1.65);}
+.dot-ring{transition:opacity 0.18s;}
+
+/* ── tooltip ── */
+#tip{
+  position:absolute;
+  background:#0d0a06ee;
+  border:1px solid #8b691477;
+  padding:3px 12px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.83rem;letter-spacing:3px;
+  text-transform:uppercase;
+  pointer-events:none;opacity:0;
+  transition:opacity 0.12s;
+  z-index:200;white-space:nowrap;
+  border-radius:2px;
+  box-shadow:0 3px 18px rgba(0,0,0,0.85);
+}
+#tip.on{opacity:1;}
+
+/* ── detail panel ── */
+.dpanel{
+  position:absolute;bottom:-285px;left:0;right:0;
+  background:var(--surface2);
+  border-top:1px solid #2a2218;
+  padding:11px 18px 10px;
+  transition:bottom 0.38s cubic-bezier(0.34,1.56,0.64,1);
+  z-index:100;
+  box-shadow:0 -10px 50px rgba(0,0,0,0.88);
+}
+.dpanel.on{bottom:0;}
+.dpanel::before{
+  content:'';position:absolute;top:0;left:8%;right:8%;height:1px;
+  background:linear-gradient(90deg,transparent,#d4a44a33,transparent);
+}
+.dpanel .xbtn{
+  position:absolute;top:9px;right:13px;
+  background:none;border:none;color:#443322;
+  font-size:1rem;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  transition:color 0.18s;
+}
+.dpanel .xbtn:hover{color:var(--text-dim);}
+.dpcont{display:flex;gap:16px;align-items:flex-start;}
+.dpleft{flex:1;min-width:0;}
+.dpright{flex:0 0 155px;}
+.dpname{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.2rem,2vw,1.65rem);letter-spacing:4px;
+  line-height:1;margin-bottom:5px;
+}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.tag{
+  font-size:0.58rem;font-weight:700;
+  padding:2px 8px;border-radius:2px;
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.dpdesc{
+  font-family:'Special Elite',cursive;
+  font-size:0.75rem;color:#a09070;line-height:1.5;
+}
+.mrow{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.mlbl{
+  font-size:0.57rem;letter-spacing:2px;
+  text-transform:uppercase;color:#554433;
+  min-width:62px;font-weight:700;
+}
+.mbar{flex:1;height:5px;background:#131108;border-radius:3px;overflow:hidden;}
+.mfill{height:100%;border-radius:3px;width:0%;
+  transition:width 0.65s cubic-bezier(0.34,1.56,0.64,1);}
+
+@media(max-width:580px){
+  .dpright{display:none;}
+  header h1{letter-spacing:5px;}
+  .filter-bar .fbtn{font-size:0.6rem;padding:2px 6px;}
+}
+
+/* ── sidebar toggle button ── */
+.sb-toggle{
+  position:fixed;top:6px;right:8px;z-index:600;
+  background:var(--surface);border:1px solid #2a2218;
+  color:var(--gold);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.75rem;letter-spacing:2px;
+  padding:4px 10px;cursor:pointer;
+  border-radius:2px;transition:all 0.18s;
+  white-space:nowrap;
+}
+.sb-toggle:hover{background:var(--gold);color:#080604;}
+
+/* ── map area transition for sidebar ── */
+.map-area{transition:margin-right 0.4s cubic-bezier(0.4,0,0.2,1);}
+.map-area.sb-open{margin-right:var(--sb-w,320px);}
+
+/* ── sidebar shell ── */
+.sidebar{
+  position:fixed;top:0;right:calc(-1 * var(--sb-w,320px));
+  width:var(--sb-w,320px);height:100vh;
+  background:var(--surface);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  z-index:500;
+  transition:right 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:-8px 0 32px rgba(0,0,0,0.7);
+  overflow:hidden;
+}
+.sidebar.open{right:0;}
+
+/* ── sidebar header ── */
+.sb-head{
+  flex-shrink:0;padding:10px 12px 8px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,#130f08,transparent);
+}
+.sb-head h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.15rem;letter-spacing:3px;color:var(--gold);
+  margin-bottom:7px;
+}
+.sb-search{
+  width:100%;background:#0a0806;
+  border:1px solid #2a2218;color:var(--text);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.8rem;padding:5px 9px;
+  border-radius:3px;outline:none;
+  transition:border-color 0.2s;
+}
+.sb-search:focus{border-color:var(--gold-dim);}
+.sb-search::placeholder{color:#443322;}
+.sort-row{display:flex;gap:3px;margin-top:6px;}
+.sort-btn{
+  flex:1;background:transparent;border:1px solid #201c14;
+  color:#443322;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.58rem;font-weight:700;padding:3px 0;
+  cursor:pointer;text-transform:uppercase;letter-spacing:1px;
+  transition:all 0.15s;border-radius:2px;
+}
+.sort-btn:hover{color:var(--text-dim);border-color:#3a2f1a;}
+.sort-btn.active{background:#1a140a;color:var(--gold);border-color:var(--gold-dim);}
+
+/* ── stats bar ── */
+.sb-stats{
+  flex-shrink:0;display:flex;gap:1px;
+  padding:4px 8px;
+  border-bottom:1px solid var(--border);
+  background:#0b0907;
+}
+.sstat{flex:1;text-align:center;padding:2px 1px;}
+.sstat-n{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.95rem;line-height:1;letter-spacing:1px;
+}
+.sstat-l{
+  font-size:0.38rem;text-transform:uppercase;
+  letter-spacing:0.8px;color:#3a3020;
+  line-height:1.3;margin-top:1px;font-weight:700;
+}
+
+/* ── band list ── */
+.sb-list{
+  flex:1;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:#2a2218 transparent;
+}
+.sb-list::-webkit-scrollbar{width:3px;}
+.sb-list::-webkit-scrollbar-thumb{background:#2a2218;border-radius:2px;}
+
+/* ── tier accordion groups ── */
+.tier-group{border-bottom:1px solid #161208;}
+.tier-hdr{
+  display:flex;align-items:center;gap:7px;
+  padding:6px 12px;cursor:pointer;user-select:none;
+  position:sticky;top:0;background:var(--surface);z-index:5;
+  transition:background 0.15s;
+  border-bottom:1px solid #161208;
+}
+.tier-hdr:hover{background:#141008;}
+.tier-bar{width:3px;height:16px;border-radius:2px;flex-shrink:0;}
+.tier-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.78rem;letter-spacing:2px;
+  text-transform:uppercase;flex:1;
+}
+.tier-count{
+  font-size:0.55rem;color:#443;
+  background:#181208;padding:1px 6px;
+  border-radius:10px;letter-spacing:0.5px;font-weight:700;
+}
+.tier-chev{font-size:0.5rem;color:#332;transition:transform 0.22s;}
+.tier-group.closed .tier-chev{transform:rotate(-90deg);}
+.tier-group.closed .tier-items{display:none;}
+
+/* ── band rows ── */
+.band-row{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px 5px 20px;cursor:pointer;
+  border-left:2px solid transparent;
+  transition:background 0.13s,border-color 0.13s;
+}
+.band-row:hover,.band-row.hov-sb{background:#14100a;}
+.band-row.sel-sb{background:#1c1610;border-left-color:var(--gold);}
+.br-dot{
+  width:7px;height:7px;border-radius:50%;
+  border:1.5px solid;flex-shrink:0;
+}
+.br-info{flex:1;min-width:0;}
+.br-name{
+  font-weight:700;font-size:0.72rem;
+  letter-spacing:0.5px;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.br-genres{
+  font-size:0.52rem;color:#443322;
+  letter-spacing:1px;text-transform:uppercase;margin-top:1px;
+}
+.br-meters{display:flex;gap:3px;flex-shrink:0;align-items:flex-end;}
+.br-mc{text-align:center;}
+.br-mbar{width:20px;height:3px;background:#181210;border-radius:2px;overflow:hidden;}
+.br-mfill{height:100%;border-radius:2px;}
+.br-mlbl{
+  font-size:0.38rem;color:#2a2018;
+  text-transform:uppercase;letter-spacing:0.5px;
+  line-height:1;margin-top:1px;
+}
+
+/* ── responsive ── */
+@media(max-width:768px){
+  :root{--sb-w:100vw;}
+  .map-area.sb-open{margin-right:0;}
+}
+
+/* ── tab nav ── */
+.tab-nav{
+  flex-shrink:0;display:flex;justify-content:center;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.tab-btn{
+  background:transparent;border:none;
+  border-bottom:2px solid transparent;
+  color:#554433;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.85rem;letter-spacing:3px;
+  padding:7px 24px;cursor:pointer;
+  transition:all 0.2s;text-transform:uppercase;
+}
+.tab-btn:hover{color:var(--text-dim);}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* ── tab content shell ── */
+.tab-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+.tab-page{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden;}
+.tab-page.active{display:flex;}
+
+/* ── community scroll wrapper ── */
+.comm-scroll{
+  flex:1;overflow-y:auto;
+  padding:22px 20px 40px;
+  max-width:700px;margin:0 auto;width:100%;
+  scrollbar-width:thin;scrollbar-color:#2a2218 transparent;
+}
+.comm-scroll::-webkit-scrollbar{width:4px;}
+.comm-scroll::-webkit-scrollbar-thumb{background:#2a2218;border-radius:2px;}
+
+/* ── section titles ── */
+.comm-stitle{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.3rem;letter-spacing:4px;color:var(--gold);
+  margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.comm-count{
+  font-size:0.65rem;color:#554;
+  background:#181208;padding:2px 10px;
+  border-radius:10px;letter-spacing:1px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+}
+
+/* ── forms ── */
+.sugg-form{
+  display:flex;flex-wrap:wrap;gap:7px;
+  margin-bottom:16px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:5px;padding:12px;
+}
+.comm-form{
+  display:flex;flex-direction:column;gap:8px;
+  margin-bottom:16px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:5px;padding:12px;
+}
+.comm-in,.comm-ta,.comm-sel{
+  background:#080604;
+  border:1px solid #2a2218;color:var(--text);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.82rem;padding:6px 9px;
+  border-radius:3px;outline:none;transition:border-color 0.2s;
+}
+.comm-in{flex:1;min-width:80px;}
+.comm-in:focus,.comm-ta:focus,.comm-sel:focus{border-color:var(--gold-dim);}
+.comm-in::placeholder,.comm-ta::placeholder{color:#332;}
+.comm-ta{resize:vertical;min-height:68px;width:100%;}
+.comm-sel{cursor:pointer;color:var(--text);}
+.comm-frow{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.comm-chars{font-size:0.6rem;color:#443;flex:1;}
+.comm-err{font-size:0.7rem;color:#cc4444;margin-top:-4px;display:none;}
+.comm-err.show{display:block;}
+/* highlight required-but-empty input on attempted submit */
+.comm-in.invalid{border-color:#cc4444 !important;}
+.comm-btn{
+  background:var(--gold);color:#080604;border:none;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.82rem;letter-spacing:2px;
+  padding:6px 16px;cursor:pointer;
+  border-radius:3px;transition:background 0.18s;
+  text-transform:uppercase;flex-shrink:0;
+}
+.comm-btn:hover{background:#e8b84e;}
+.comm-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ── empty states ── */
+.comm-empty{
+  text-align:center;padding:20px;
+  color:#443322;
+  font-family:'Special Elite',cursive;
+  font-size:0.82rem;letter-spacing:1px;
+}
+
+/* ── suggestions ── */
+.sugg-list,.comment-list{display:flex;flex-direction:column;gap:7px;margin-bottom:6px;}
+.suggestion{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:5px;padding:8px 12px;
+  transition:border-color 0.15s;
+}
+.suggestion:hover{border-color:#2a2218;}
+.vote-btn{
+  display:flex;flex-direction:column;align-items:center;
+  background:none;border:none;cursor:pointer;
+  padding:2px 7px;border-radius:4px;
+  transition:background 0.15s;flex-shrink:0;
+}
+.vote-btn:hover{background:#1e180f;}
+.vote-btn.voted{background:#d4a44a18;}
+.vote-arr{font-size:0.85rem;color:#443;transition:color 0.15s;line-height:1;}
+.vote-btn.voted .vote-arr{color:var(--gold);}
+.vote-n{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.95rem;color:#554;letter-spacing:1px;line-height:1;
+}
+.vote-btn.voted .vote-n{color:var(--gold);}
+.sugg-info{flex:1;min-width:0;}
+.sugg-name{font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;}
+.sugg-by{font-size:0.58rem;color:#443;letter-spacing:1px;margin-top:1px;}
+.sugg-genre{
+  font-size:0.57rem;color:#7a44aa;
+  background:#7a44aa18;
+  border:1px solid #7a44aa44;
+  padding:1px 7px;border-radius:2px;
+  letter-spacing:1px;text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* ── comments ── */
+.comment{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:5px;padding:10px 13px;
+}
+.cm-meta{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+.cm-author{font-weight:700;font-size:0.8rem;color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;}
+.cm-time{font-size:0.58rem;color:#443;letter-spacing:1px;}
+.cm-band{
+  font-size:0.58rem;color:#7a44aa;
+  background:#7a44aa18;padding:1px 7px;
+  border-radius:2px;letter-spacing:1px;text-transform:uppercase;
+}
+.cm-text{font-size:0.8rem;color:#aa9977;line-height:1.5;font-family:'Special Elite',cursive;}
+
+/* ── firebase offline banner ── */
+.fb-offline{
+  background:#1e1408;border:1px solid #3a2c18;
+  border-radius:4px;padding:8px 12px;
+  font-size:0.72rem;color:#887755;
+  font-family:'Special Elite',cursive;letter-spacing:1px;
+  margin-bottom:16px;text-align:center;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The Butt Rock Taxonomy</h1>
+  <p class="sub">An Interactive Field Guide to the Post-Grunge Wasteland &mdash; Est. 2026</p>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="map"       onclick="switchTab('map')">Map</button>
+  <button class="tab-btn"        data-tab="community" onclick="switchTab('community')">Community</button>
+</nav>
+
+<div class="tab-content">
+
+<div id="tabMap" class="tab-page active">
+<div class="filter-bar" id="fbar"></div>
+<button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()">☰ Roster</button>
+<div class="map-area" id="mapArea">
+  <svg id="mapsvg" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="tip"></div>
+  <div class="dpanel" id="dp">
+    <button class="xbtn" onclick="closeDp()">✕</button>
+    <div class="dpcont">
+      <div class="dpleft">
+        <div class="dpname" id="dpName"></div>
+        <div class="tags" id="dpTags"></div>
+        <p class="dpdesc" id="dpDesc"></p>
+      </div>
+      <div class="dpright">
+        <div class="mrow">
+          <span class="mlbl">Heaviness</span>
+          <div class="mbar"><div class="mfill" id="mH" style="background:var(--red)"></div></div>
+        </div>
+        <div class="mrow">
+          <span class="mlbl">Butt Rock</span>
+          <div class="mbar"><div class="mfill" id="mB" style="background:var(--gold)"></div></div>
+        </div>
+        <div class="mrow">
+          <span class="mlbl">Artistry</span>
+          <div class="mbar"><div class="mfill" id="mA" style="background:var(--green)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="spRow" style="display:none;margin-top:9px;padding-top:8px;border-top:1px solid #1e1a15;align-items:center;gap:10px;">
+      <iframe id="spEmbed" src="" width="300" height="80" frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+        style="border-radius:8px;flex-shrink:0;"></iframe>
+      <span style="font-family:'Special Elite',cursive;font-size:0.6rem;color:#443322;letter-spacing:1px;line-height:1.4;">30-sec preview<br>no login needed</span>
+    </div>
+  </div>
+</div><!-- /#mapArea -->
+</div><!-- /#tabMap -->
+
+<!-- ── COMMUNITY TAB ── -->
+<div id="tabCom" class="tab-page">
+  <div class="comm-scroll">
+
+    <div class="comm-stitle">Suggest a Band <span class="comm-count" id="sugCount">0</span></div>
+    <div class="sugg-form">
+      <input class="comm-in" id="sgName"  type="text" placeholder="Your name *"       maxlength="30">
+      <input class="comm-in" id="sgBand"  type="text" placeholder="Band name *"        maxlength="60">
+      <input class="comm-in" id="sgGenre" type="text" placeholder="Genre (optional)"   maxlength="30" style="flex:0 0 120px;">
+      <button class="comm-btn" onclick="submitSuggestion()">Suggest</button>
+      <div class="comm-err" id="sgErr" style="flex-basis:100%;margin-top:0;"></div>
+    </div>
+    <div class="sugg-list" id="suggList"></div>
+
+    <div class="comm-stitle" style="margin-top:24px;">Discussion <span class="comm-count" id="comCount">0</span></div>
+    <div class="comm-form">
+      <input class="comm-in" id="cmName" type="text" placeholder="Your name *" maxlength="30">
+      <div class="comm-err" id="cmNameErr">Please enter your name to comment.</div>
+      <textarea class="comm-ta" id="cmText" maxlength="500"
+        placeholder="Share your hot take on a band's placement, argue about genre boundaries, or just yell about butt rock…"></textarea>
+      <div class="comm-frow">
+        <select class="comm-sel" id="cmBand"><option value="">Tag a band (optional)</option></select>
+        <span class="comm-chars" id="cmChars">0/500</span>
+        <button class="comm-btn" onclick="submitComment()">Post</button>
+      </div>
+    </div>
+    <div class="comment-list" id="commentList"></div>
+
+  </div>
+</div><!-- /#tabCom -->
+
+</div><!-- /.tab-content -->
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-head">
+    <h2>Full Roster</h2>
+    <input class="sb-search" id="sbSearch" type="text" placeholder="Search bands or genres…" oninput="onSbSearch()">
+    <div class="sort-row">
+      <button class="sort-btn active" data-s="tier"  onclick="setSbSort('tier')">Tier</button>
+      <button class="sort-btn"        data-s="alpha" onclick="setSbSort('alpha')">A–Z</button>
+      <button class="sort-btn"        data-s="heavy" onclick="setSbSort('heavy')">Heavy</button>
+      <button class="sort-btn"        data-s="butt"  onclick="setSbSort('butt')">Butt</button>
+      <button class="sort-btn"        data-s="art"   onclick="setSbSort('art')">Art</button>
+    </div>
+  </div>
+  <div class="sb-stats" id="sbStats"></div>
+  <div class="sb-list"  id="sbList"></div>
+</div>
+
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+
+<script>
+// ── FIREBASE CONFIG ──
+// Replace these placeholder values with your project's config:
+// Firebase Console → Project Settings → Your Apps → SDK setup
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId:         "YOUR_PROJECT",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID",
+};
+
+let db = null, fbReady = false;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  fbReady = true;
+} catch(e) {
+  console.warn('Firebase not initialised — community features disabled:', e.message);
+}
+
+// ── GENRE COLORS ──
+const G = {
+  'Butt Rock'   :{c:'#d4a44a'},
+  'Post-Grunge' :{c:'#c47730'},
+  'Nu Metal'    :{c:'#c44444'},
+  'Alt Metal'   :{c:'#7a44aa'},
+  'Grunge'      :{c:'#448866'},
+  'Hard Rock'   :{c:'#cc6633'},
+  'Metalcore'   :{c:'#aa3355'},
+  'Rap Rock'    :{c:'#5577cc'},
+  'Experimental':{c:'#44aaaa'},
+};
+
+// ── BAND DATA (53 bands) ──
+const BANDS = [
+  {name:'Nickelback',           x:45, y:95, genres:['Butt Rock','Post-Grunge'],  art:15, desc:'Ground zero. The gravitational center of butt rock.'},
+  {name:'Creed',                x:42, y:93, genres:['Butt Rock','Post-Grunge'],  art:18, desc:"Scott Stapp's arms-wide-open yearning practically invented the archetype."},
+  {name:'3 Doors Down',         x:40, y:90, genres:['Butt Rock','Post-Grunge'],  art:20, desc:'Kryptonite is inescapable. Pure, distilled, formula-driven butt rock.'},
+  {name:'Hinder',               x:44, y:96, genres:['Butt Rock'],               art:10, desc:'"Lips of an Angel" is basically the butt rock Sistine Chapel.'},
+  {name:'Theory of a Deadman',  x:46, y:92, genres:['Butt Rock','Post-Grunge'], art:14, desc:"Nickelback's slightly edgier cousin. Same family reunion."},
+  {name:'Puddle of Mudd',       x:48, y:88, genres:['Butt Rock','Post-Grunge'], art:16, desc:'Wes Scantlin: grunge cosplay as performance art.'},
+  {name:'Buckcherry',           x:55, y:87, genres:['Butt Rock','Hard Rock'],   art:18, desc:'"Crazy Bitch" — the thesis statement of an entire subculture.'},
+  {name:'Trapt',                x:50, y:86, genres:['Butt Rock','Post-Grunge'], art:12, desc:'"Headstrong" and a Twitter account. That\'s it. That\'s the band.'},
+  {name:'Five Finger Death Punch',x:72,y:85,genres:['Hard Rock','Butt Rock'],   art:15, desc:'Monster Energy in band form. The official band of tribal tattoos.'},
+  {name:'Saving Abel',          x:42, y:82, genres:['Butt Rock'],               art:12, desc:'"Addicted" — southern-fried butt rock with a side of regret.'},
+  {name:'Godsmack',             x:65, y:82, genres:['Hard Rock','Butt Rock'],   art:25, desc:'Alice in Chains at home from Walmart, but genuinely heavy.'},
+  {name:'Three Days Grace',     x:55, y:83, genres:['Butt Rock','Post-Grunge'], art:25, desc:'"I Hate Everything About You" — butt rock emotion at max volume.'},
+  {name:'Shinedown',            x:58, y:80, genres:['Butt Rock','Hard Rock'],   art:30, desc:'More polished than most. Brent Smith actually has pipes.'},
+  {name:'Disturbed',            x:68, y:78, genres:['Alt Metal','Butt Rock'],   art:28, desc:"OOH-WAH-AH-AH-AH. David Draiman's chin piercings carry the genre."},
+  {name:'Saliva',               x:55, y:78, genres:['Hard Rock','Butt Rock'],   art:18, desc:'"Click Click Boom" — basically a Monster Truck Rally theme song.'},
+  {name:'Daughtry',             x:30, y:78, genres:['Butt Rock','Post-Grunge'], art:22, desc:'American Idol → straight to the butt rock pipeline.'},
+  {name:'Lifehouse',            x:25, y:75, genres:['Post-Grunge','Butt Rock'], art:28, desc:'Hanging by a moment between butt rock and adult contemporary.'},
+  {name:'Drowning Pool',        x:68, y:75, genres:['Nu Metal','Butt Rock'],    art:18, desc:'"Bodies" — floor, hit, let, etc. You know the words.'},
+  {name:'Default',              x:38, y:74, genres:['Post-Grunge','Butt Rock'], art:22, desc:'Canadian butt rock. Like Nickelback but somehow more forgotten.'},
+  {name:'Papa Roach',           x:60, y:72, genres:['Nu Metal','Butt Rock'],    art:25, desc:'Started nu metal, evolved into butt rock. "Last Resort" transcends both.'},
+  {name:'Fuel',                 x:35, y:70, genres:['Post-Grunge'],             art:32, desc:'"Shimmer" has more depth than the chart position suggests.'},
+  {name:'Crossfade',            x:48, y:65, genres:['Post-Grunge','Butt Rock'], art:25, desc:'"Cold" was everywhere in 2004 and then — silence.'},
+  {name:'Staind',               x:55, y:62, genres:['Post-Grunge','Nu Metal'],  art:38, desc:'Aaron Lewis went from nu-metal vulnerability to country butt rock.'},
+  {name:'Hoobastank',           x:40, y:60, genres:['Post-Grunge','Alt Metal'], art:30, desc:'"The Reason" lives in your head rent-free whether you like it or not.'},
+  {name:'Sick Puppies',         x:52, y:60, genres:['Post-Grunge','Hard Rock'], art:32, desc:"Australian post-grunge. \"You're Going Down\" goes hard."},
+  {name:'Seether',              x:58, y:58, genres:['Post-Grunge','Alt Metal'], art:45, desc:'South African grunge revival. Darker roots than the surface suggests.'},
+  {name:'Breaking Benjamin',    x:62, y:55, genres:['Alt Metal','Post-Grunge'], art:50, desc:'Heavy enough to escape pure butt rock, but the radio loves them.'},
+  {name:'Limp Bizkit',          x:60, y:55, genres:['Nu Metal','Rap Rock'],     art:20, desc:"Fred Durst did it all for the nookie. We're still processing that."},
+  {name:'Finger Eleven',        x:38, y:55, genres:['Post-Grunge','Butt Rock'], art:35, desc:'"Paralyzer" — the butt rock song people don\'t realize is butt rock.'},
+  {name:'Skillet',              x:58, y:55, genres:['Hard Rock','Alt Metal'],   art:30, desc:'"Monster" and "Hero" for youth group arenas. Christian butt rock.'},
+  {name:'P.O.D.',               x:55, y:52, genres:['Rap Rock','Nu Metal'],     art:35, desc:'"Boom" and "Alive." Christian rap-rock with surprising staying power.'},
+  {name:'Red',                  x:55, y:48, genres:['Alt Metal','Post-Grunge'], art:40, desc:'Cinematic post-grunge with strings. The dramatic one.'},
+  {name:'Alter Bridge',         x:60, y:48, genres:['Hard Rock','Alt Metal'],   art:58, desc:"Creed's guitarist + actual talent = surprisingly good."},
+  {name:'Taproot',              x:62, y:48, genres:['Nu Metal','Alt Metal'],    art:40, desc:'"Poem" was huge. Then the nu metal tide went out.'},
+  {name:'Chevelle',             x:65, y:45, genres:['Alt Metal','Post-Grunge'], art:55, desc:'Tool-lite. Too artsy for butt rock, too radio for metal kids.'},
+  {name:'Cold',                 x:58, y:42, genres:['Nu Metal','Post-Grunge'],  art:45, desc:'Darker nu-metal that never quite broke through.'},
+  {name:'Evanescence',          x:50, y:40, genres:['Alt Metal','Post-Grunge'], art:60, desc:'Gothic piano metal. Amy Lee brought classical chops to Hot Topic.'},
+  {name:'10 Years',             x:52, y:38, genres:['Alt Metal','Post-Grunge'], art:55, desc:'"Wasteland" is moody and beautiful. Underappreciated.'},
+  {name:'Linkin Park',          x:58, y:35, genres:['Nu Metal','Rap Rock'],     art:65, desc:'Started nu metal, transcended everything. Hybrid Theory is a monument.'},
+  {name:'Avenged Sevenfold',    x:75, y:30, genres:['Metalcore','Hard Rock'],   art:65, desc:'Metalcore → arena metal. Synyster Gates is genuinely elite.'},
+  {name:'Bush',                 x:52, y:28, genres:['Post-Grunge'],             art:50, desc:'British grunge? Gavin Rossdale walked so Nickelback could run.'},
+  {name:'Incubus',              x:42, y:22, genres:['Alt Metal','Post-Grunge'], art:70, desc:"Funk-metal → dreamy alt rock. Brandon Boyd's voice is too good."},
+  {name:'Slipknot',             x:90, y:20, genres:['Nu Metal','Alt Metal'],    art:75, desc:'Nine masked Iowans. Too angry, weird, theatrical for butt rock.'},
+  {name:'Korn',                 x:82, y:18, genres:['Nu Metal'],                art:72, desc:'Invented nu metal. The 7-string drop-tuned riff factory.'},
+  {name:'Mudvayne',             x:88, y:15, genres:['Nu Metal','Experimental'], art:80, desc:'Math metal in clown paint. "Dig" is way more complex than it sounds.'},
+  {name:'Stone Temple Pilots',  x:55, y:15, genres:['Grunge','Hard Rock'],      art:82, desc:'The most underrated grunge band. Scott Weiland was a chameleon.'},
+  {name:'Deftones',             x:78, y:12, genres:['Alt Metal','Experimental'],art:92, desc:'Shoegaze metal. Chino Moreno makes heaviness beautiful. Not butt rock.'},
+  {name:'System of a Down',     x:80, y:8,  genres:['Alt Metal','Experimental'],art:95, desc:'Armenian prog-metal chaos. Absolutely nothing formulaic about them.'},
+  {name:'A Perfect Circle',     x:65, y:8,  genres:['Alt Metal','Experimental'],art:90, desc:"Maynard's moodier project. Art rock pretending to be accessible."},
+  {name:'Pearl Jam',            x:45, y:8,  genres:['Grunge'],                  art:90, desc:"Eddie Vedder's mumble launched a thousand imitators. None matched."},
+  {name:'Soundgarden',          x:70, y:6,  genres:['Grunge'],                  art:94, desc:"Chris Cornell's 4-octave range over Black Sabbath riffs. Untouchable."},
+  {name:'Alice in Chains',      x:72, y:5,  genres:['Grunge'],                  art:95, desc:"Layne Staley's harmonies over doom riffs. Grunge royalty."},
+  {name:'Tool',                 x:75, y:5,  genres:['Alt Metal','Experimental'],art:98, desc:'Fibonacci riffs and third-eye aesthetics. The anti-butt-rock.'},
+];
+
+// ── TIER SEGMENTS ──
+const TIERS = [
+  {id:'peak',   name:'Peak Butt Rock',        color:'#d4a44a', test: b => b.y >= 85},
+  {id:'heavy',  name:'Heavy Butt Rock',       color:'#cc6633', test: b => b.y >= 70 && b.y < 85 && b.x >= 55},
+  {id:'soft',   name:'Soft / Radio BR',       color:'#c47730', test: b => b.y >= 65 && b.y < 85 && b.x < 55},
+  {id:'gray',   name:'The Gray Zone',         color:'#887755', test: b => b.y >= 40 && b.y < 70},
+  {id:'art',    name:'Artistic / Heavy',      color:'#7a44aa', test: b => b.y < 40 && b.x >= 55},
+  {id:'grunge', name:'Grunge & Origins',      color:'#448866', test: b => b.y < 40 && b.x < 55},
+];
+function getTier(b) { return TIERS.find(t => t.test(b)) || TIERS[5]; }
+BANDS.forEach(b => { b._tier = getTier(b); });
+
+// ── SPOTIFY ARTIST IDS ──
+const SPOTIFY = {
+  'Nickelback':'2eeE8dUTWN9KQKe14jBZ4T','Creed':'6d24kC5fxHFOSEAmjQPPhc',
+  '3 Doors Down':'2JEbJHBCbPvSCM3bRwMxMa','Hinder':'0JQiXezFz0MJWV9UNcFVSW',
+  'Theory of a Deadman':'2XnBwblw31dfGnspMIwgWz','Puddle of Mudd':'0TMnMGBfDmMwAGaSRgpcUC',
+  'Buckcherry':'0R0TcxfSE8hBU7rUBwVhfE','Trapt':'5I3VPDOvCpQHz08GOxUFql',
+  'Five Finger Death Punch':'5t28BP42x2axFnqOLMVlYm','Saving Abel':'1gRJexX7TFrXEEJPdh3jVo',
+  'Godsmack':'3t5xRXzsuZmMDkQzgOX35S','Three Days Grace':'2xiIXseIJcq3nG7C8fHyO3',
+  'Shinedown':'70BYFdaZbEKbeauJ670ysQ','Disturbed':'3TOqt5oJwL9BE2o7Q1UrIa',
+  'Saliva':'6JW8wliOEwaDZ231ZY6n1B','Daughtry':'1uQWmt1OhuHGRKmZ2ZcL6p',
+  'Lifehouse':'7mFVLkEDT3u92KcBGiIQ3R','Drowning Pool':'0YLVq65SKGDB3XGgFFSd0q',
+  'Default':'7d3XVLGI7a9Mh4VqIyDNqL','Papa Roach':'4RddZ3iHvSpGV4dvATac9X',
+  'Fuel':'7w29UYBi0qsHi5RTcv3lmA','Crossfade':'2w9zwKO2U8T6iPEB7zyeWT',
+  'Staind':'0MJBSF0omhrPaeBXax0bxR','Hoobastank':'20s0P9QLxGqKuCsGwFV1KH',
+  'Sick Puppies':'0RWynEdqlZZ8JHwedXNqkv','Seether':'6B5c4sch27tWHAGdarpPaW',
+  'Breaking Benjamin':'5BtHciL0e0BrFseMEJYEMI','Limp Bizkit':'165ZgPlLkK7bf5bDoFc6Ps',
+  'Finger Eleven':'5T9KMqWMJLkSTWMDGKBWPH','Skillet':'0eDvMgVFoNV3TpwtrVCoTj',
+  'P.O.D.':'1LwDaNsLvGKHlsJOphNfcv','Red':'3tPoCdM5bSyXbeFRQhEGUV',
+  'Alter Bridge':'13KSGLDBbcFlfMaBb7jkrb','Taproot':'5pHgGDznJJuPIpNPLvh3gm',
+  'Chevelle':'0BShaqDBDmMbBwub2lnIj4','Cold':'3AO3I4h5ZNppOC3JzEIYzV',
+  'Evanescence':'5nGIFgo0shDenQYSE0Writ','10 Years':'7sTIs0cRAQpajPHKbR0q0j',
+  'Linkin Park':'6XyY86QOPPrYVGvF9ch6wz','Avenged Sevenfold':'0p4nmQO2msCgU4IF37Wi3j',
+  'Bush':'3bhjJBITayYFjccHJzlfTP','Incubus':'3YcBF2ttyueytpXtEzn1Za',
+  'Slipknot':'05fG473RIxrVXzjQT3NRAO','Korn':'3RNrq3jvMZxD9ZyoOZbQOD',
+  'Mudvayne':'3TIkzEfJhYBpThVQl7W9LJ','Stone Temple Pilots':'1tqhsYv8yBBdwANFNzHtcr',
+  'Deftones':'6Ghvu1VvMGScGpOUJBAHNH','System of a Down':'5eAWCfyUhZtHHtBdNk56l1',
+  'A Perfect Circle':'0Wxy7TOniMoMl1xmpEW2qG','Pearl Jam':'1dfeR4HaWDbWqFHLkxsg1d',
+  'Soundgarden':'4MFYP1I2WULD16UrChb2Ll','Alice in Chains':'64tNsm6TnZe2zpcMVMOoHL',
+  'Tool':'2yEwvVSSSUkcLeSTNyHKh8',
+};
+
+// ── GENRE ZONES (data-space: x=0-100 left→right, y=0-100 bottom→top) ──
+const ZONES = [
+  {id:'zBR', label:'BUTT ROCK',      cx:47,  cy:88,  rx:21,  ry:13,  color:'#d4a44a'},
+  {id:'zPG', label:'POST-GRUNGE',    cx:41,  cy:64,  rx:20,  ry:21,  color:'#c47730'},
+  {id:'zNM', label:'NU METAL',       cx:67,  cy:47,  rx:23,  ry:27,  color:'#c44444'},
+  {id:'zAM', label:'ALT METAL',      cx:63,  cy:30,  rx:22,  ry:27,  color:'#7a44aa'},
+  {id:'zGO', label:'GRUNGE ORIGINS', cx:59,  cy:9,   rx:17,  ry:7,   color:'#448866'},
+  {id:'zEX', label:'EXPERIMENTAL',   cx:79,  cy:9,   rx:13,  ry:7,   color:'#44aaaa'},
+];
+
+// ── SVG SETUP ──
+const NS = 'http://www.w3.org/2000/svg';
+const SVG = document.getElementById('mapsvg');
+const mapArea = document.getElementById('mapArea');
+let VW, VH, pt, pb, pl, pr, PW, PH;
+
+function resize() {
+  const r = mapArea.getBoundingClientRect();
+  VW = r.width; VH = r.height;
+  pt = Math.max(26, VH * 0.045);
+  pb = Math.max(26, VH * 0.045);
+  pl = Math.max(26, VW * 0.038);
+  pr = Math.max(26, VW * 0.038);
+  PW = VW - pl - pr;
+  PH = VH - pt - pb;
+  SVG.setAttribute('viewBox', `0 0 ${VW} ${VH}`);
+}
+
+function tx(x) { return pl + (x / 100) * PW; }
+function ty(y) { return pt + ((100 - y) / 100) * PH; }
+function mkEl(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  return e;
+}
+function mkTxt(str, attrs) { const e = mkEl('text', attrs); e.textContent = str; return e; }
+
+// ── RENDER ──
+function render() {
+  resize();
+  SVG.innerHTML = '';
+
+  // DEFS
+  const defs = mkEl('defs');
+
+  // Background radial gradient
+  const bgG = mkEl('radialGradient', {id:'bgG', cx:'42%', cy:'38%', r:'72%'});
+  bgG.appendChild(mkEl('stop', {offset:'0%', 'stop-color':'#1c140a', 'stop-opacity':'1'}));
+  bgG.appendChild(mkEl('stop', {offset:'55%', 'stop-color':'#0c0905', 'stop-opacity':'1'}));
+  bgG.appendChild(mkEl('stop', {offset:'100%','stop-color':'#040302', 'stop-opacity':'1'}));
+  defs.appendChild(bgG);
+
+  // Zone gradients
+  ZONES.forEach(z => {
+    const g = mkEl('radialGradient', {id: z.id});
+    g.appendChild(mkEl('stop', {offset:'0%',  'stop-color':z.color, 'stop-opacity':'0.22'}));
+    g.appendChild(mkEl('stop', {offset:'58%', 'stop-color':z.color, 'stop-opacity':'0.07'}));
+    g.appendChild(mkEl('stop', {offset:'100%','stop-color':z.color, 'stop-opacity':'0'}));
+    defs.appendChild(g);
+  });
+
+  // Glow filter for selected dot
+  const glow = mkEl('filter', {id:'glow', x:'-60%', y:'-60%', width:'220%', height:'220%'});
+  const feBlur = mkEl('feGaussianBlur', {stdDeviation:'3', result:'blur'});
+  const feMerge = mkEl('feMerge');
+  const fn1 = mkEl('feMergeNode', {in:'blur'});
+  const fn2 = mkEl('feMergeNode', {in:'SourceGraphic'});
+  feMerge.appendChild(fn1); feMerge.appendChild(fn2);
+  glow.appendChild(feBlur); glow.appendChild(feMerge);
+  defs.appendChild(glow);
+
+  SVG.appendChild(defs);
+
+  // BG
+  SVG.appendChild(mkEl('rect', {x:0, y:0, width:VW, height:VH, fill:'url(#bgG)'}));
+
+  // Vignette
+  const vigG = mkEl('radialGradient', {id:'vig', cx:'50%', cy:'50%', r:'70%'});
+  vigG.appendChild(mkEl('stop', {offset:'55%', 'stop-color':'#000', 'stop-opacity':'0'}));
+  vigG.appendChild(mkEl('stop', {offset:'100%','stop-color':'#000', 'stop-opacity':'0.6'}));
+  defs.appendChild(vigG);
+  SVG.appendChild(mkEl('rect', {x:0, y:0, width:VW, height:VH, fill:'url(#vig)', 'pointer-events':'none'}));
+
+  // GRID
+  const gridG = mkEl('g');
+  for (let i = 25; i <= 75; i += 25) {
+    gridG.appendChild(mkEl('line', {x1:tx(i), y1:pt, x2:tx(i), y2:pt+PH, stroke:'#fff', 'stroke-width':'0.5', opacity:'0.04'}));
+    gridG.appendChild(mkEl('line', {x1:pl, y1:ty(i), x2:pl+PW, y2:ty(i), stroke:'#fff', 'stroke-width':'0.5', opacity:'0.04'}));
+  }
+  // center crosshairs
+  gridG.appendChild(mkEl('line', {x1:tx(50), y1:pt, x2:tx(50), y2:pt+PH, stroke:'#d4a44a', 'stroke-width':'0.5', opacity:'0.06'}));
+  gridG.appendChild(mkEl('line', {x1:pl, y1:ty(50), x2:pl+PW, y2:ty(50), stroke:'#d4a44a', 'stroke-width':'0.5', opacity:'0.06'}));
+  SVG.appendChild(gridG);
+
+  // ZONES
+  const zonesG = mkEl('g');
+  ZONES.forEach(z => {
+    zonesG.appendChild(mkEl('ellipse', {
+      cx: tx(z.cx), cy: ty(z.cy),
+      rx: (z.rx / 100) * PW,
+      ry: (z.ry / 100) * PH,
+      fill: `url(#${z.id})`,
+      'pointer-events': 'none',
+    }));
+    const fs = Math.max(8, Math.min(12, VW * 0.011));
+    zonesG.appendChild(mkTxt(z.label, {
+      x: tx(z.cx), y: ty(z.cy) + 4,
+      'text-anchor':'middle', 'dominant-baseline':'middle',
+      fill: z.color,
+      'font-family': "'Bebas Neue', sans-serif",
+      'font-size': fs,
+      'letter-spacing': '2.5',
+      opacity: '0.32',
+      'pointer-events': 'none',
+    }));
+  });
+  SVG.appendChild(zonesG);
+
+  // AXIS LABELS
+  const afs = Math.max(7, Math.min(11, VW * 0.01));
+  const aBase = {fill:'#fff', 'font-family':"'Bebas Neue', sans-serif", 'font-size':afs, 'letter-spacing':'3', opacity:'0.16', 'pointer-events':'none'};
+
+  SVG.appendChild(mkTxt('▲  PEAK BUTT ROCK', {...aBase, x:tx(50), y:pt-11, 'text-anchor':'middle'}));
+  SVG.appendChild(mkTxt('▼  ARTISTIC / GENRE-DEFINING', {...aBase, x:tx(50), y:ty(0)+19, 'text-anchor':'middle'}));
+
+  const lx = pl - 12, midY = pt + PH / 2;
+  const lLbl = mkTxt('←  SOFT / RADIO-FRIENDLY', {...aBase, x:lx, y:midY, 'text-anchor':'middle'});
+  lLbl.setAttribute('transform', `rotate(-90, ${lx}, ${midY})`);
+  SVG.appendChild(lLbl);
+
+  const rx2 = VW - pr + 12;
+  const rLbl = mkTxt('HEAVY / AGGRESSIVE  →', {...aBase, x:rx2, y:midY, 'text-anchor':'middle'});
+  rLbl.setAttribute('transform', `rotate(90, ${rx2}, ${midY})`);
+  SVG.appendChild(rLbl);
+
+  // DOTS
+  const dotsG = mkEl('g', {id:'dots-g'});
+  BANDS.forEach((band, i) => {
+    const col = G[band.genres[0]]?.c || '#888888';
+    const dotR = Math.max(4.5, Math.min(7, VW * 0.006));
+
+    const g = mkEl('g', {
+      class: 'band-g',
+      'data-i': i,
+      transform: `translate(${tx(band.x).toFixed(1)},${ty(band.y).toFixed(1)})`,
+    });
+
+    const inner = mkEl('g', {class:'dot-inner'});
+
+    // outer ring (hidden by default)
+    inner.appendChild(mkEl('circle', {
+      r: dotR + 5.5, fill:'none',
+      stroke: col, 'stroke-width':'1',
+      opacity:'0', class:'dot-ring',
+    }));
+
+    // filled dot
+    inner.appendChild(mkEl('circle', {
+      r: dotR,
+      fill: col + '3a',
+      stroke: col,
+      'stroke-width': '1.8',
+    }));
+
+    g.appendChild(inner);
+
+    g.addEventListener('mouseenter', e => onHover(i, e));
+    g.addEventListener('mousemove',  e => moveTip(e));
+    g.addEventListener('mouseleave', () => offHover(i));
+    g.addEventListener('click', e => { e.stopPropagation(); selectBand(i); });
+
+    dotsG.appendChild(g);
+  });
+  SVG.appendChild(dotsG);
+
+  SVG.addEventListener('click', () => closeDp());
+
+  // Re-apply filter after rebuild
+  applyFilter();
+
+  // Re-apply selection visual
+  if (selIdx !== null) {
+    const g = SVG.querySelector(`.band-g[data-i="${selIdx}"]`);
+    if (g) { g.classList.add('sel'); g.querySelector('.dot-ring').setAttribute('opacity','0.75'); }
+  }
+}
+
+// ── TOOLTIP ──
+const tip = document.getElementById('tip');
+function onHover(i, e) {
+  const band = BANDS[i];
+  const col = G[band.genres[0]]?.c || '#d4a44a';
+  tip.textContent = band.name;
+  tip.style.color = col;
+  tip.style.borderColor = col + '66';
+  moveTip(e);
+  tip.classList.add('on');
+  const g = SVG.querySelector(`.band-g[data-i="${i}"]`);
+  if (g) { g.classList.add('hov'); g.querySelector('.dot-ring').setAttribute('opacity','0.45'); }
+  // Highlight sidebar row
+  const row = document.querySelector(`.band-row[data-sb-idx="${i}"]`);
+  if (row) row.classList.add('hov-sb');
+}
+function moveTip(e) {
+  const r = mapArea.getBoundingClientRect();
+  let x = e.clientX - r.left + 14;
+  let y = e.clientY - r.top - 36;
+  if (y < 4) y = e.clientY - r.top + 16;
+  if (x + 200 > r.width) x = e.clientX - r.left - 214;
+  tip.style.left = x + 'px';
+  tip.style.top  = y + 'px';
+}
+function offHover(i) {
+  tip.classList.remove('on');
+  if (i === selIdx) return;
+  const g = SVG.querySelector(`.band-g[data-i="${i}"]`);
+  if (g) { g.classList.remove('hov'); g.querySelector('.dot-ring').setAttribute('opacity','0'); }
+  // Un-highlight sidebar row
+  const row = document.querySelector(`.band-row[data-sb-idx="${i}"]`);
+  if (row) row.classList.remove('hov-sb');
+}
+
+// ── DETAIL PANEL ──
+let selIdx = null;
+const dp = document.getElementById('dp');
+
+function selectBand(i) {
+  if (selIdx !== null && selIdx !== i) {
+    const prev = SVG.querySelector(`.band-g[data-i="${selIdx}"]`);
+    if (prev) { prev.classList.remove('sel','hov'); prev.querySelector('.dot-ring').setAttribute('opacity','0'); }
+  }
+  selIdx = i;
+  const g = SVG.querySelector(`.band-g[data-i="${i}"]`);
+  if (g) { g.classList.add('sel'); g.querySelector('.dot-ring').setAttribute('opacity','0.75'); }
+
+  const band = BANDS[i];
+  const col = G[band.genres[0]]?.c || '#d4a44a';
+  document.getElementById('dpName').textContent = band.name;
+  document.getElementById('dpName').style.color = col;
+  document.getElementById('dpTags').innerHTML = band.genres.map(gn => {
+    const c = G[gn]?.c || '#888';
+    return `<span class="tag" style="background:${c}1e;color:${c};border:1px solid ${c}4a">${gn}</span>`;
+  }).join('');
+  document.getElementById('dpDesc').textContent = band.desc;
+
+  ['mH','mB','mA'].forEach(id => document.getElementById(id).style.width = '0%');
+  setTimeout(() => {
+    document.getElementById('mH').style.width = band.x   + '%';
+    document.getElementById('mB').style.width = band.y   + '%';
+    document.getElementById('mA').style.width = band.art + '%';
+  }, 40);
+  dp.classList.add('on');
+  // Spotify embed
+  const spId = SPOTIFY[band.name];
+  const spRow = document.getElementById('spRow');
+  const spEmbed = document.getElementById('spEmbed');
+  if (spId) {
+    spEmbed.src = `https://open.spotify.com/embed/artist/${spId}?utm_source=generator&theme=0`;
+    spRow.style.display = 'flex';
+  } else {
+    spEmbed.src = '';
+    spRow.style.display = 'none';
+  }
+  updateSbSelection(i);
+}
+
+function closeDp() {
+  dp.classList.remove('on');
+  document.getElementById('spEmbed').src = '';
+  document.getElementById('spRow').style.display = 'none';
+  if (selIdx !== null) {
+    const g = SVG.querySelector(`.band-g[data-i="${selIdx}"]`);
+    if (g) { g.classList.remove('sel','hov'); g.querySelector('.dot-ring').setAttribute('opacity','0'); }
+    selIdx = null;
+  }
+  updateSbSelection(null);
+}
+
+// ── FILTER BAR ──
+let activeFilter = 'All';
+function buildFilters() {
+  const bar = document.getElementById('fbar');
+  ['All', ...Object.keys(G)].forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'fbtn' + (name === 'All' ? ' active' : '');
+    btn.textContent = name;
+    const col = name === 'All' ? '#d4a44a' : G[name].c;
+    btn.style.setProperty('--c', col);
+    if (name !== 'All') {
+      btn.style.borderColor = col + '40';
+      btn.style.color = col + 'aa';
+    }
+    btn.addEventListener('click', () => {
+      activeFilter = name;
+      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilter();
+    });
+    bar.appendChild(btn);
+  });
+}
+
+function applyFilter() {
+  document.querySelectorAll('.band-g').forEach(el => {
+    const band = BANDS[+el.dataset.i];
+    const dim = activeFilter !== 'All' && !band.genres.includes(activeFilter);
+    el.style.opacity = dim ? '0.07' : '1';
+    el.style.transition = 'opacity 0.25s';
+  });
+  renderSbList();
+}
+
+// ── SIDEBAR STATE ──
+let sbOpen = false;
+let sbSort = 'tier';
+let sbSearch = '';
+
+function toggleSidebar() {
+  sbOpen = !sbOpen;
+  document.getElementById('sidebar').classList.toggle('open', sbOpen);
+  mapArea.classList.toggle('sb-open', sbOpen);
+  document.getElementById('sbToggle').textContent = sbOpen ? '✕ Close' : '☰ Roster';
+}
+
+function onSbSearch() {
+  sbSearch = document.getElementById('sbSearch').value;
+  renderSbList();
+}
+
+function setSbSort(s) {
+  sbSort = s;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.s === s));
+  renderSbList();
+}
+
+// ── SIDEBAR BUILD ──
+function buildSidebar() {
+  buildSbStats();
+  renderSbList();
+}
+
+function buildSbStats() {
+  const counts = {};
+  TIERS.forEach(t => counts[t.id] = 0);
+  BANDS.forEach(b => counts[b._tier.id]++);
+  const SHORT = {peak:'Peak', heavy:'Heavy', soft:'Radio', gray:'Gray', art:'Artistic', grunge:'Grunge'};
+  document.getElementById('sbStats').innerHTML = TIERS.map(t =>
+    `<div class="sstat">
+       <div class="sstat-n" style="color:${t.color}">${counts[t.id]}</div>
+       <div class="sstat-l">${SHORT[t.id]}</div>
+     </div>`
+  ).join('');
+}
+
+function getSbItems() {
+  let items = BANDS.map((b, i) => ({b, i}));
+  if (sbSearch) {
+    const q = sbSearch.toLowerCase();
+    items = items.filter(({b}) =>
+      b.name.toLowerCase().includes(q) || b.genres.some(g => g.toLowerCase().includes(q))
+    );
+  }
+  if (activeFilter !== 'All') {
+    items = items.filter(({b}) => b.genres.includes(activeFilter));
+  }
+  if (sbSort === 'alpha') items.sort((a, b) => a.b.name.localeCompare(b.b.name));
+  else if (sbSort === 'heavy') items.sort((a, b) => b.b.x - a.b.x);
+  else if (sbSort === 'butt')  items.sort((a, b) => b.b.y - a.b.y);
+  else if (sbSort === 'art')   items.sort((a, b) => b.b.art - a.b.art);
+  return items;
+}
+
+function renderSbList() {
+  const list = document.getElementById('sbList');
+  if (!list) return;
+  list.innerHTML = '';
+  const items = getSbItems();
+
+  if (sbSort === 'tier') {
+    TIERS.forEach(tier => {
+      const tItems = items.filter(({b}) => b._tier.id === tier.id);
+      if (!tItems.length) return;
+      const grp = document.createElement('div');
+      grp.className = 'tier-group';
+      grp.dataset.tier = tier.id;
+
+      const hdr = document.createElement('div');
+      hdr.className = 'tier-hdr';
+      hdr.innerHTML =
+        `<div class="tier-bar" style="background:${tier.color}"></div>` +
+        `<span class="tier-name" style="color:${tier.color}">${tier.name}</span>` +
+        `<span class="tier-count">${tItems.length}</span>` +
+        `<span class="tier-chev">▼</span>`;
+      hdr.addEventListener('click', () => grp.classList.toggle('closed'));
+
+      const body = document.createElement('div');
+      body.className = 'tier-items';
+      tItems.forEach(({b, i}) => body.appendChild(makeBandRow(b, i)));
+
+      grp.appendChild(hdr);
+      grp.appendChild(body);
+      list.appendChild(grp);
+    });
+  } else {
+    items.forEach(({b, i}) => list.appendChild(makeBandRow(b, i)));
+  }
+}
+
+function makeBandRow(band, idx) {
+  const col = G[band.genres[0]]?.c || '#888';
+  const row = document.createElement('div');
+  row.className = 'band-row' + (selIdx === idx ? ' sel-sb' : '');
+  row.dataset.sbIdx = idx;
+
+  row.innerHTML =
+    `<div class="br-dot" style="border-color:${col};background:${col}30"></div>` +
+    `<div class="br-info">` +
+      `<div class="br-name" style="color:${col}">${band.name}</div>` +
+      `<div class="br-genres">${band.genres.join(' · ')}</div>` +
+    `</div>` +
+    `<div class="br-meters">` +
+      `<div class="br-mc"><div class="br-mbar"><div class="br-mfill" style="width:${band.x}%;background:var(--red)"></div></div><div class="br-mlbl">H</div></div>` +
+      `<div class="br-mc"><div class="br-mbar"><div class="br-mfill" style="width:${band.y}%;background:var(--gold)"></div></div><div class="br-mlbl">BR</div></div>` +
+      `<div class="br-mc"><div class="br-mbar"><div class="br-mfill" style="width:${band.art}%;background:var(--green)"></div></div><div class="br-mlbl">A</div></div>` +
+    `</div>`;
+
+  row.addEventListener('mouseenter', () => {
+    row.classList.add('hov-sb');
+    if (selIdx !== idx) {
+      const g = SVG.querySelector(`.band-g[data-i="${idx}"]`);
+      if (g) { g.classList.add('hov'); g.querySelector('.dot-ring').setAttribute('opacity','0.45'); }
+    }
+  });
+  row.addEventListener('mouseleave', () => {
+    row.classList.remove('hov-sb');
+    if (selIdx !== idx) {
+      const g = SVG.querySelector(`.band-g[data-i="${idx}"]`);
+      if (g) { g.classList.remove('hov'); g.querySelector('.dot-ring').setAttribute('opacity','0'); }
+    }
+  });
+  row.addEventListener('click', () => selectBand(idx));
+  return row;
+}
+
+function updateSbSelection(idx) {
+  document.querySelectorAll('.band-row').forEach(r => {
+    r.classList.toggle('sel-sb', +r.dataset.sbIdx === idx);
+  });
+  if (idx !== null) {
+    // Expand the tier group if collapsed
+    const row = document.querySelector(`.band-row[data-sb-idx="${idx}"]`);
+    if (row) {
+      const grp = row.closest('.tier-group');
+      if (grp) grp.classList.remove('closed');
+      row.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+  }
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('tabMap').classList.toggle('active', tab === 'map');
+  document.getElementById('tabCom').classList.toggle('active', tab === 'community');
+  const tog = document.getElementById('sbToggle');
+  tog.style.display = tab === 'map' ? '' : 'none';
+  if (tab === 'community' && sbOpen) toggleSidebar();
+}
+
+// ── COMMUNITY UTILS ──
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60)    return 'just now';
+  if (s < 3600)  return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  return Math.floor(s / 86400) + 'd ago';
+}
+function fbOfflineBanner() {
+  return '<div class="fb-offline">⚠ Firebase not configured — replace placeholder values in firebaseConfig to enable community features.</div>';
+}
+
+// ── COMMUNITY: BAND SELECT ──
+function populateBandSelect() {
+  const sel = document.getElementById('cmBand');
+  if (!sel) return;
+  BANDS.slice().sort((a,b) => a.name.localeCompare(b.name)).forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.name; opt.textContent = b.name;
+    sel.appendChild(opt);
+  });
+}
+
+// ─────────────────────────────────────────────
+// FIREBASE HELPERS
+// Database paths:
+//   /comments    → {id, author, text, band, time}
+//   /suggestions → {id, band, genre, by, votes, time}
+// ─────────────────────────────────────────────
+
+// ── loadComments() ──
+// Real-time listener ordered by time (ascending from Firebase,
+// reversed to newest-first before rendering).
+function loadComments() {
+  firebase.database().ref('comments').orderByChild('time').on('value', snap => {
+    const list = [];
+    snap.forEach(child => {
+      list.unshift({ ...child.val(), id: child.key }); // unshift → newest first
+    });
+    renderComments(list);
+  });
+}
+
+// ── saveComment(comment) ──
+// Generates a push key, embeds it as `id`, then writes the document.
+function saveComment(comment) {
+  const ref = firebase.database().ref('comments').push();
+  return ref.set({ ...comment, id: ref.key });
+}
+
+// ── loadSuggestions() ──
+// Real-time listener; client-side sort by votes descending.
+function loadSuggestions() {
+  firebase.database().ref('suggestions').on('value', snap => {
+    const list = [];
+    snap.forEach(child => {
+      list.push({ ...child.val(), id: child.key });
+    });
+    list.sort((a, b) => b.votes - a.votes);
+    renderSuggestions(list);
+  });
+}
+
+// ── saveSuggestion(suggestion) ──
+// Generates a push key, embeds it as `id`, then writes the document.
+// Returns the DatabaseReference so the caller can read .key for vote tracking.
+function saveSuggestion(suggestion) {
+  const ref = firebase.database().ref('suggestions').push();
+  ref.set({ ...suggestion, id: ref.key });
+  return ref;
+}
+
+// ── updateVote(suggestionId, newVoteCount) ──
+// Overwrites only the `votes` field on the target suggestion.
+function updateVote(suggestionId, newVoteCount) {
+  return firebase.database().ref(`suggestions/${suggestionId}/votes`).set(newVoteCount);
+}
+
+// ─────────────────────────────────────────────
+// COMMUNITY: COMMENTS (UI)
+// ─────────────────────────────────────────────
+function initComments() {
+  const charEl = document.getElementById('cmText');
+  if (charEl) charEl.addEventListener('input', () => {
+    document.getElementById('cmChars').textContent = charEl.value.length + '/500';
+  });
+
+  if (!fbReady) {
+    document.getElementById('commentList').innerHTML = fbOfflineBanner();
+    return;
+  }
+  loadComments();
+}
+
+function renderComments(list) {
+  const el = document.getElementById('commentList');
+  document.getElementById('comCount').textContent = list.length;
+  if (!list.length) {
+    el.innerHTML = '<div class="comm-empty">No comments yet. Be the first to argue about genre boundaries.</div>';
+    return;
+  }
+  el.innerHTML = list.map(c =>
+    `<div class="comment">
+       <div class="cm-meta">
+         <span class="cm-author">${esc(c.author)}</span>
+         ${c.band ? `<span class="cm-band">${esc(c.band)}</span>` : ''}
+         <span class="cm-time">${timeAgo(c.time)}</span>
+       </div>
+       <div class="cm-text">${esc(c.text)}</div>
+     </div>`
+  ).join('');
+}
+
+function submitComment() {
+  if (!fbReady) return;
+  const name = document.getElementById('cmName').value.trim();
+  const text = document.getElementById('cmText').value.trim();
+  const band = document.getElementById('cmBand').value;
+  const err  = document.getElementById('cmNameErr');
+  if (!name) { err.classList.add('show'); document.getElementById('cmName').focus(); return; }
+  err.classList.remove('show');
+  if (!text) return;
+  const btn = document.querySelector('.comm-form .comm-btn');
+  if (btn) btn.disabled = true;
+  saveComment({ author: name, text, band, time: Date.now() })
+    .then(() => {
+      document.getElementById('cmText').value = '';
+      document.getElementById('cmChars').textContent = '0/500';
+      document.getElementById('cmBand').value = '';
+    })
+    .finally(() => { if (btn) btn.disabled = false; });
+}
+
+// ─────────────────────────────────────────────
+// COMMUNITY: SUGGESTIONS + VOTING (UI)
+// Vote state is per-device via localStorage (no auth required).
+// ─────────────────────────────────────────────
+let myVotes = new Set(JSON.parse(localStorage.getItem('buttrock-myvotes') || '[]'));
+function saveMyVotes() { localStorage.setItem('buttrock-myvotes', JSON.stringify([...myVotes])); }
+
+function initSuggestions() {
+  if (!fbReady) {
+    document.getElementById('suggList').innerHTML = fbOfflineBanner();
+    return;
+  }
+  loadSuggestions();
+}
+
+function renderSuggestions(list) {
+  const el = document.getElementById('suggList');
+  document.getElementById('sugCount').textContent = list.length;
+  if (!list.length) {
+    el.innerHTML = '<div class="comm-empty">No suggestions yet. Know a band that belongs on the map?</div>';
+    return;
+  }
+  el.innerHTML = list.map(s => {
+    const voted = myVotes.has(s.id);
+    return `<div class="suggestion">
+      <button class="vote-btn${voted ? ' voted' : ''}" onclick="toggleVote('${s.id}',${s.votes},${voted})">
+        <span class="vote-arr">▲</span>
+        <span class="vote-n">${s.votes}</span>
+      </button>
+      <div class="sugg-info">
+        <div class="sugg-name">${esc(s.band)}</div>
+        <div class="sugg-by">by ${esc(s.by)}${s.genre ? ' · <span class="sugg-genre">' + esc(s.genre) + '</span>' : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function submitSuggestion() {
+  if (!fbReady) return;
+  const nameEl  = document.getElementById('sgName');
+  const bandEl  = document.getElementById('sgBand');
+  const genre   = document.getElementById('sgGenre').value.trim();
+  const by      = nameEl.value.trim();
+  const band    = bandEl.value.trim();
+  const errEl   = document.getElementById('sgErr');
+
+  // Visual validation
+  nameEl.classList.toggle('invalid', !by);
+  bandEl.classList.toggle('invalid', !band);
+  nameEl.addEventListener('input', () => nameEl.classList.remove('invalid'), {once:true});
+  bandEl.addEventListener('input', () => bandEl.classList.remove('invalid'), {once:true});
+
+  if (!by && !band) {
+    errEl.textContent = 'Please enter your name and the band name.';
+    errEl.classList.add('show'); return;
+  }
+  if (!by)   { errEl.textContent = 'Please enter your name.';     errEl.classList.add('show'); return; }
+  if (!band) { errEl.textContent = 'Please enter the band name.'; errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+
+  const ref = saveSuggestion({ band, genre, by, votes: 1, time: Date.now() });
+  myVotes.add(ref.key);
+  saveMyVotes();
+  bandEl.value  = '';
+  document.getElementById('sgGenre').value = '';
+}
+
+function toggleVote(id, currentVotes, voted) {
+  if (!fbReady) return;
+  if (voted) {
+    updateVote(id, Math.max(0, currentVotes - 1));
+    myVotes.delete(id);
+  } else {
+    updateVote(id, currentVotes + 1);
+    myVotes.add(id);
+  }
+  saveMyVotes();
+}
+
+// ── INIT ──
+buildFilters();
+render();
+buildSidebar();
+populateBandSelect();
+initComments();
+initSuggestions();
+
+// Re-render SVG when map area changes size (sidebar transition, window resize)
+let resizeT;
+const ro = (typeof ResizeObserver !== 'undefined')
+  ? new ResizeObserver(() => { clearTimeout(resizeT); resizeT = setTimeout(render, 80); })
+  : null;
+if (ro) ro.observe(mapArea);
+else window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(render, 140); });
+</script>
+</body>
+</html>
