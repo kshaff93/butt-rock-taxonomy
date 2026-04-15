@@ -500,6 +500,50 @@ header .sub{
   margin-bottom:16px;text-align:center;
 }
 
+/* ── similar artists (detail panel) ── */
+#dpRelated{margin-top:10px;padding-top:8px;border-top:1px solid #1e1a15;}
+.rel-title{
+  font-family:'Bebas Neue',sans-serif;font-size:0.72rem;
+  letter-spacing:3px;color:#554;margin-bottom:6px;
+}
+.rel-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.rel-pill{
+  background:transparent;border:1px dashed #3a2c18;color:#776655;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;
+  font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 9px;border-radius:2px;cursor:pointer;transition:all 0.17s;
+}
+.rel-pill:hover:not(:disabled){border-color:var(--gold-dim);color:var(--gold);background:#d4a44a0e;}
+.rel-pill .pill-icon{opacity:0.55;margin-right:3px;}
+.rel-pill.done,.rel-pill:disabled{
+  background:#d4a44a1a;border:1px solid #d4a44a44;
+  color:var(--gold);cursor:default;
+}
+
+/* ── toast notification ── */
+#toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(10px);
+  background:#1a1208;border:1px solid #d4a44a55;
+  color:var(--gold);font-family:'Barlow Condensed',sans-serif;
+  font-size:0.8rem;letter-spacing:2px;
+  padding:7px 18px;border-radius:3px;
+  opacity:0;pointer-events:none;z-index:9000;
+  transition:opacity 0.22s,transform 0.22s;white-space:nowrap;
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── suggestion source tag ── */
+.sugg-source{
+  font-size:0.54rem;color:#5577aa;
+  background:#5577aa15;border:1px solid #5577aa33;
+  padding:1px 6px;border-radius:2px;
+  letter-spacing:1px;text-transform:uppercase;font-style:italic;
+}
+
+/* ── feed discovery badge ── */
+.feed-type.discovery{background:#44aaaa18;color:#44aaaa;border:1px solid #44aaaa33;}
+
 /* ── activity feed ── */
 .feed-list{display:flex;flex-direction:column;gap:10px;margin-top:4px;}
 .feed-card{
@@ -634,6 +678,10 @@ header .sub{
         loading="lazy"
         style="border-radius:8px;flex-shrink:0;"></iframe>
       <span style="font-family:'Special Elite',cursive;font-size:0.6rem;color:#443322;letter-spacing:1px;line-height:1.4;">30-sec preview<br>no login needed</span>
+    </div>
+    <div id="dpRelated" style="display:none;">
+      <div class="rel-title">Similar Artists</div>
+      <div class="rel-pills" id="dpRelPills"></div>
     </div>
     <div id="dpComments" style="display:none;">
       <div class="dp-com-title">Comments</div>
@@ -823,6 +871,65 @@ const SPOTIFY = {
   'Disturbed':             '3TOqt5oJwL9BE2NG9MEwDa',
   'Shinedown':             '70BYFdaZbEKbeauJ670ysI',
   'Breaking Benjamin':     '5BtHciL0e0zOP7prIHn3pP',
+};
+
+// ── RELATED ARTISTS ──
+// Hardcoded similar-artist suggestions for every band.
+// None of these names exist in the BANDS taxonomy — they are discovery targets.
+const RELATED = {
+  'Nickelback':            ['Thornley','My Darkest Days','Econoline Crush','Framing Hanley'],
+  'Creed':                 ['Tremonti','Art of Anarchy','Framing Hanley','Candlebox'],
+  '3 Doors Down':          ['Oleander','Collective Soul','Evans Blue','Framing Hanley'],
+  'Hinder':                ['Rev Theory','Framing Hanley','Submersed','Burn Season'],
+  'Theory of a Deadman':   ['Rev Theory','Art of Dying','Dommin','Framing Hanley'],
+  'Puddle of Mudd':        ['Oleander','Evans Blue','Candlebox','Collective Soul'],
+  'Buckcherry':            ['Airbourne','Fozzy','Hardcore Superstar','Reckless Love'],
+  'Trapt':                 ['Framing Hanley','Evans Blue','Submersed','Smile Empty Soul'],
+  'Five Finger Death Punch':['Hellyeah','Trivium','Volbeat','Fozzy'],
+  'Saving Abel':           ['Rev Theory','Art of Dying','Burn Season','Framing Hanley'],
+  'Godsmack':              ['Smile Empty Soul','Tantric','Soil','Candlebox'],
+  'Three Days Grace':      ['My Darkest Days','Art of Dying','Rev Theory','Evans Blue'],
+  'Shinedown':             ['Halestorm','Art of Dying','Evans Blue','Framing Hanley'],
+  'Disturbed':             ['Device','Trivium','Hellyeah','Soil'],
+  'Saliva':                ['Smile Empty Soul','Tantric','Soil','Submersed'],
+  'Daughtry':              ['David Cook','Framing Hanley','Evans Blue','Art of Dying'],
+  'Lifehouse':             ['Matchbox Twenty','Oleander','Collective Soul','Candlebox'],
+  'Drowning Pool':         ['Hellyeah','Soil','Nothingface','Hatebreed'],
+  'Default':               ['Thornley','Econoline Crush','I Mother Earth','Our Lady Peace'],
+  'Papa Roach':            ['Flaw','Orgy','Submersed','Smile Empty Soul'],
+  'Fuel':                  ['Matchbox Twenty','Oleander','Candlebox','Collective Soul'],
+  'Crossfade':             ['Evans Blue','Framing Hanley','Submersed','Burn Season'],
+  'Staind':                ['Soil','Nothingface','Evans Blue','Smile Empty Soul'],
+  'Hoobastank':            ['Evans Blue','Oleander','Submersed','Framing Hanley'],
+  'Sick Puppies':          ['Framing Hanley','Evans Blue','The Veer Union','Art of Dying'],
+  'Seether':               ['Adelitas Way','Smile Empty Soul','Evans Blue','Framing Hanley'],
+  'Breaking Benjamin':     ['Starset','Saint Asonia','Badflower','Otherwise'],
+  'Limp Bizkit':           ['Crazy Town','Orgy','Hed PE','Flaw'],
+  'Finger Eleven':         ['Evans Blue','Framing Hanley','Submersed','Hyjak'],
+  'Skillet':               ['Disciple','Fireflight','Flyleaf','Decyfer Down'],
+  'P.O.D.':                ['Switchfoot','Hed PE','Blindside','Thousand Foot Krutch'],
+  'Red':                   ['Starset','Fireflight','Decyfer Down','Disciple'],
+  'Alter Bridge':          ['Tremonti','Art of Anarchy','Halestorm','Framing Hanley'],
+  'Taproot':               ['Nothingface','Soil','Flaw','Submersed'],
+  'Chevelle':              ['Helmet','Failure','Nothing','Hum'],
+  'Cold':                  ['Nothingface','Soil','Evans Blue','Submersed'],
+  'Evanescence':           ['Lacuna Coil','Within Temptation','Halestorm','Flyleaf'],
+  '10 Years':              ['Failure','Nothing','Hum','Helmet'],
+  'Linkin Park':           ['From Ashes to New','Starset','Thousand Foot Krutch','Badflower'],
+  'Avenged Sevenfold':     ['Bullet for My Valentine','Trivium','Killswitch Engage','As I Lay Dying'],
+  'Bush':                  ['Candlebox','Collective Soul','Oleander','Live'],
+  'Incubus':               ['Sparta','The Mars Volta','Rx Bandits','Thrice'],
+  'Slipknot':              ['Stone Sour','Mushroomhead','Motionless in White','Hatebreed'],
+  'Korn':                  ['Coal Chamber','Hed PE','Orgy','Nothingface'],
+  'Mudvayne':              ['Nonpoint','Nothingface','Flaw','Hellyeah'],
+  'Stone Temple Pilots':   ['Candlebox','Live','Silverchair','Collective Soul'],
+  'Deftones':              ['Crosses','Loathe','Nothing','Deafheaven'],
+  'System of a Down':      ['Rage Against the Machine','Primus','Mr. Bungle','The Locust'],
+  'A Perfect Circle':      ['Puscifer','Nine Inch Nails','Failure','Hum'],
+  'Pearl Jam':             ['Mad Season','Temple of the Dog','Mudhoney','Screaming Trees'],
+  'Soundgarden':           ['Temple of the Dog','Mad Season','Screaming Trees','Mudhoney'],
+  'Alice in Chains':       ['Mad Season','Screaming Trees','Temple of the Dog','Mudhoney'],
+  'Tool':                  ['Puscifer','Isis','Mastodon','Neurosis'],
 };
 
 // ── GENRE ZONES (data-space: x=0-100 left→right, y=0-100 bottom→top) ──
@@ -1099,6 +1206,7 @@ function selectBand(i) {
     spRow.style.display = 'none';
   }
   updateSbSelection(i);
+  renderDpRelated();
   renderDpComments();
 }
 
@@ -1106,6 +1214,8 @@ function closeDp() {
   dp.classList.remove('on');
   document.getElementById('spEmbed').src = '';
   document.getElementById('spRow').style.display = 'none';
+  const dpr = document.getElementById('dpRelated');
+  if (dpr) dpr.style.display = 'none';
   const dpc = document.getElementById('dpComments');
   if (dpc) dpc.style.display = 'none';
   if (selIdx !== null) {
@@ -1360,11 +1470,16 @@ function renderFeed() {
              >${esc(item.band)}</div>`
           : '');
     } else {
+      const isDiscovery = !!(item.source && item.source.startsWith('via '));
       bodyHTML =
-        `<div class="feed-sugg">suggested adding <strong>${esc(item.band)}</strong>` +
-        (item.genre ? ` &middot; <span class="sugg-genre">${esc(item.genre)}</span>` : '') +
+        `<div class="feed-sugg">${isDiscovery ? '🧭 ' : ''}suggested adding <strong>${esc(item.band)}</strong>` +
+        (item.source ? ` <span class="sugg-source">${esc(item.source)}</span>` : '') +
+        (item.genre && !item.source ? ` &middot; <span class="sugg-genre">${esc(item.genre)}</span>` : '') +
         `<span class="feed-votes">▲ ${item.votes}</span></div>`;
     }
+
+    const isDiscovery = item._type === 'suggestion' && !!(item.source && item.source.startsWith('via '));
+    const typeLabel   = isDiscovery ? 'discovery' : item._type;
 
     return `<div class="feed-card">
       <div class="feed-avatar">${letter}</div>
@@ -1372,7 +1487,7 @@ function renderFeed() {
         <div class="feed-meta">
           <span class="feed-author">${name}</span>
           <span class="feed-time">${ts}</span>
-          <span class="feed-type ${item._type}">${item._type}</span>
+          <span class="feed-type ${typeLabel}">${typeLabel}</span>
         </div>
         ${bodyHTML}
       </div>
@@ -1419,6 +1534,90 @@ function switchToComment(bandName) {
     const ta = document.getElementById('cmText');
     if (ta) { ta.focus(); ta.scrollIntoView({behavior:'smooth', block:'nearest'}); }
   }, 200);
+}
+
+// ── SIMILAR ARTISTS ──
+// Session cache of discovered band names (so the same pill doesn't re-suggest)
+let _discovered = null;
+function getDiscovered() {
+  if (!_discovered) _discovered = new Set(JSON.parse(localStorage.getItem('buttrock-discovered') || '[]'));
+  return _discovered;
+}
+function saveDiscovered() {
+  if (_discovered) localStorage.setItem('buttrock-discovered', JSON.stringify([..._discovered]));
+}
+
+function renderDpRelated() {
+  const section = document.getElementById('dpRelated');
+  if (!section || selIdx === null) return;
+
+  const band    = BANDS[selIdx];
+  const related = RELATED[band.name];
+  if (!related || !related.length) { section.style.display = 'none'; return; }
+
+  const discovered = getDiscovered();
+  section.style.display = '';
+  document.getElementById('dpRelPills').innerHTML = related.map(name => {
+    const done = discovered.has(name);
+    const onclick = done ? '' : `onclick="suggestRelated(${JSON.stringify(name)},${JSON.stringify(band.name)},this)"`;
+    return `<button class="rel-pill${done ? ' done' : ''}" ${done ? 'disabled' : onclick}>` +
+      `<span class="pill-icon">${done ? '✓' : '+'}</span>` +
+      `<span class="pill-name">${esc(name)}</span>` +
+      `</button>`;
+  }).join('');
+}
+
+function suggestRelated(bandName, parentBand, pillEl) {
+  if (!fbReady) { showToast('Firebase not connected'); return; }
+
+  const discovered = getDiscovered();
+  const existing   = allSuggestions.find(s => s.band.toLowerCase() === bandName.toLowerCase());
+
+  if (existing) {
+    if (!myVotes.has(existing.id)) {
+      updateVote(existing.id, existing.votes + 1);
+      myVotes.add(existing.id);
+      saveMyVotes();
+      showToast(`Upvoted "${bandName}"!`);
+    } else {
+      showToast(`Already voted for "${bandName}"`);
+    }
+  } else {
+    const parentData = BANDS.find(b => b.name === parentBand);
+    const ref = saveSuggestion({
+      band:   bandName,
+      genre:  parentData ? parentData.genres[0] : '',
+      by:     'Discovery',
+      votes:  1,
+      time:   Date.now(),
+      source: `via ${parentBand}`,
+    });
+    myVotes.add(ref.key);
+    saveMyVotes();
+    showToast(`Added "${bandName}" to suggestions!`);
+  }
+
+  // Persist discovery so the pill stays checked across sessions
+  discovered.add(bandName);
+  saveDiscovered();
+
+  // Update pill immediately
+  if (pillEl) {
+    pillEl.classList.add('done');
+    pillEl.disabled = true;
+    const icon = pillEl.querySelector('.pill-icon');
+    if (icon) icon.textContent = '✓';
+  }
+}
+
+let _toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('on'), 2500);
 }
 
 // ── COMMUNITY UTILS ──
@@ -1603,7 +1802,7 @@ function renderSuggestions(list) {
       </button>
       <div class="sugg-info">
         <div class="sugg-name">${esc(s.band)}</div>
-        <div class="sugg-by">by ${esc(s.by)}${s.genre ? ' · <span class="sugg-genre">' + esc(s.genre) + '</span>' : ''}</div>
+        <div class="sugg-by">by ${esc(s.by)}${s.genre ? ' · <span class="sugg-genre">' + esc(s.genre) + '</span>' : ''}${s.source ? ' · <span class="sugg-source">' + esc(s.source) + '</span>' : ''}</div>
       </div>
     </div>`;
   }).join('');
@@ -1668,5 +1867,6 @@ const ro = (typeof ResizeObserver !== 'undefined')
 if (ro) ro.observe(mapArea);
 else window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(render, 140); });
 </script>
+<div id="toast"></div>
 </body>
 </html>
