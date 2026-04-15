@@ -715,12 +715,11 @@ header .sub{
         </div>
       </div>
     </div>
-    <div id="spRow" style="display:none;margin-top:9px;padding-top:8px;border-top:1px solid #1e1a15;align-items:center;gap:10px;">
-      <iframe id="spEmbed" src="" width="300" height="80" frameborder="0"
+    <div id="spRow" style="display:none;margin-top:9px;padding-top:8px;border-top:1px solid #1e1a15;">
+      <iframe id="spEmbed" src="" width="100%" height="80" frameborder="0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
-        style="border-radius:8px;flex-shrink:0;"></iframe>
-      <span style="font-family:'Special Elite',cursive;font-size:0.6rem;color:#443322;letter-spacing:1px;line-height:1.4;">30-sec preview<br>no login needed</span>
+        style="border-radius:8px;display:block;"></iframe>
     </div>
     <div id="dpRelated" style="display:none;">
       <div class="rel-title">Similar Artists</div>
@@ -1256,7 +1255,7 @@ function selectBand(i) {
   const spEmbed = document.getElementById('spEmbed');
   if (spId) {
     spEmbed.src = `https://open.spotify.com/embed/artist/${spId}?utm_source=generator&theme=0`;
-    spRow.style.display = 'flex';
+    spRow.style.display = 'block';
   } else {
     spEmbed.src = '';
     spRow.style.display = 'none';
