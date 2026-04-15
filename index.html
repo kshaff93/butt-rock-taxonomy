@@ -93,6 +93,12 @@ header .sub{
 .band-g.sel .dot-inner{transform:scale(1.65);}
 .dot-ring{transition:opacity 0.18s;}
 
+/* ── dot entrance animation ── */
+@keyframes dotFadeIn{
+  from{opacity:0;transform:scale(0.3);}
+  to  {opacity:1;transform:scale(1);}
+}
+
 /* ── tooltip ── */
 #tip{
   position:absolute;
@@ -112,15 +118,16 @@ header .sub{
 
 /* ── detail panel ── */
 .dpanel{
-  position:absolute;bottom:-285px;left:0;right:0;
+  position:absolute;bottom:0;left:0;right:0;
+  transform:translateY(100%);
   background:var(--surface2);
   border-top:1px solid #2a2218;
   padding:11px 18px 10px;
-  transition:bottom 0.38s cubic-bezier(0.34,1.56,0.64,1);
+  transition:transform 0.38s cubic-bezier(0.34,1.56,0.64,1);
   z-index:100;
   box-shadow:0 -10px 50px rgba(0,0,0,0.88);
 }
-.dpanel.on{bottom:0;}
+.dpanel.on{transform:translateY(0);}
 .dpanel::before{
   content:'';position:absolute;top:0;left:8%;right:8%;height:1px;
   background:linear-gradient(90deg,transparent,#d4a44a33,transparent);
@@ -318,6 +325,13 @@ header .sub{
 @media(max-width:768px){
   :root{--sb-w:100vw;}
   .map-area.sb-open{margin-right:0;}
+  /* Community tab: full-height scrollable column on mobile */
+  .tab-page.active{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .comm-scroll{
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
+    padding-bottom:80px; /* clear mobile browser chrome */
+  }
 }
 
 /* ── tab nav ── */
@@ -408,6 +422,16 @@ header .sub{
 .comm-btn:hover{background:#e8b84e;}
 .comm-btn:disabled{opacity:0.4;cursor:not-allowed;}
 
+/* ── community footer ── */
+.comm-footer{
+  margin-top:32px;padding:14px 0 4px;
+  border-top:1px solid #1a1510;
+  text-align:center;
+  font-family:'Special Elite',cursive;
+  font-size:0.62rem;color:#2a1d0e;
+  letter-spacing:2.5px;
+}
+
 /* ── empty states ── */
 .comm-empty{
   text-align:center;padding:20px;
@@ -475,6 +499,89 @@ header .sub{
   font-family:'Special Elite',cursive;letter-spacing:1px;
   margin-bottom:16px;text-align:center;
 }
+
+/* ── activity feed ── */
+.feed-list{display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+.feed-card{
+  display:flex;gap:12px;align-items:flex-start;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:5px;padding:12px 14px;
+}
+.feed-avatar{
+  flex-shrink:0;width:32px;height:32px;border-radius:50%;
+  background:#1e1608;border:1px solid #3a2c18;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:0.9rem;
+  color:var(--gold);letter-spacing:1px;
+}
+.feed-body{flex:1;min-width:0;}
+.feed-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px;}
+.feed-author{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.78rem;font-weight:700;
+  color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;
+}
+.feed-time{font-size:0.58rem;color:#443;letter-spacing:1px;}
+.feed-type{
+  font-size:0.52rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:1px 6px;border-radius:2px;
+}
+.feed-type.comment   {background:#d4a44a18;color:var(--gold);border:1px solid #d4a44a33;}
+.feed-type.suggestion{background:#7a44aa18;color:#9a64ca;border:1px solid #7a44aa33;}
+.feed-text{
+  font-family:'Special Elite',cursive;
+  font-size:0.77rem;color:#aa9977;line-height:1.5;word-break:break-word;
+}
+.feed-sugg{
+  font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;color:var(--text-dim);
+}
+.feed-sugg strong{color:var(--text);}
+.feed-votes{font-size:0.6rem;color:#665;letter-spacing:1px;margin-left:5px;}
+.feed-band-pill{
+  display:inline-block;margin-top:5px;
+  font-size:0.56rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:#9a64ca;background:#7a44aa18;border:1px solid #7a44aa44;
+  padding:2px 8px;border-radius:2px;cursor:pointer;transition:background 0.15s;
+}
+.feed-band-pill:hover{background:#7a44aa30;}
+
+/* ── detail panel: per-band comments ── */
+#dpComments{margin-top:10px;padding-top:8px;border-top:1px solid #1e1a15;}
+.dp-com-title{
+  font-family:'Bebas Neue',sans-serif;font-size:0.72rem;
+  letter-spacing:3px;color:#554;margin-bottom:6px;
+}
+.dp-com-list{
+  display:flex;flex-direction:column;gap:5px;
+  max-height:120px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:#2a2218 transparent;
+}
+.dp-com-list::-webkit-scrollbar{width:3px;}
+.dp-com-list::-webkit-scrollbar-thumb{background:#2a2218;border-radius:2px;}
+.dp-com-item{
+  padding:5px 8px;background:#0a0806;
+  border:1px solid #1e1a15;border-radius:3px;
+}
+.dp-cm-meta{display:flex;align-items:center;gap:6px;margin-bottom:2px;}
+.dp-cm-author{
+  font-size:0.63rem;font-weight:700;
+  color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;
+}
+.dp-cm-time{font-size:0.55rem;color:#443;letter-spacing:1px;}
+.dp-cm-text{
+  font-family:'Special Elite',cursive;
+  font-size:0.68rem;color:#887755;line-height:1.4;
+}
+.dp-com-empty{
+  font-family:'Special Elite',cursive;
+  font-size:0.7rem;color:#443;padding:6px 2px;
+}
+.dp-com-link{
+  background:none;border:none;color:var(--gold-dim);
+  font-family:'Special Elite',cursive;font-size:0.7rem;
+  cursor:pointer;text-decoration:underline;padding:0;margin-left:3px;
+}
+.dp-com-link:hover{color:var(--gold);}
 </style>
 </head>
 <body>
@@ -486,6 +593,7 @@ header .sub{
 
 <nav class="tab-nav">
   <button class="tab-btn active" data-tab="map"       onclick="switchTab('map')">Map</button>
+  <button class="tab-btn"        data-tab="feed"      onclick="switchTab('feed')">Feed</button>
   <button class="tab-btn"        data-tab="community" onclick="switchTab('community')">Community</button>
 </nav>
 
@@ -527,9 +635,21 @@ header .sub{
         style="border-radius:8px;flex-shrink:0;"></iframe>
       <span style="font-family:'Special Elite',cursive;font-size:0.6rem;color:#443322;letter-spacing:1px;line-height:1.4;">30-sec preview<br>no login needed</span>
     </div>
+    <div id="dpComments" style="display:none;">
+      <div class="dp-com-title">Comments</div>
+      <div class="dp-com-list" id="dpComList"></div>
+    </div>
   </div>
 </div><!-- /#mapArea -->
 </div><!-- /#tabMap -->
+
+<!-- ── FEED TAB ── -->
+<div id="tabFeed" class="tab-page">
+  <div class="comm-scroll">
+    <div class="comm-stitle">Activity <span class="comm-count" id="feedCount">0</span></div>
+    <div class="feed-list" id="feedList"></div>
+  </div>
+</div>
 
 <!-- ── COMMUNITY TAB ── -->
 <div id="tabCom" class="tab-page">
@@ -559,6 +679,8 @@ header .sub{
     </div>
     <div class="comment-list" id="commentList"></div>
 
+    <div class="comm-footer">Built with questionable taste &middot; 2026</div>
+
   </div>
 </div><!-- /#tabCom -->
 
@@ -587,16 +709,14 @@ header .sub{
 
 <script>
 // ── FIREBASE CONFIG ──
-// Replace these placeholder values with your project's config:
-// Firebase Console → Project Settings → Your Apps → SDK setup
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId:         "YOUR_PROJECT",
-  storageBucket:     "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID",
+  apiKey:            "AIzaSyBWWxzrKLSrN5PRcY060ztzwL09mO3_7HQ",
+  authDomain:        "butt-rock-taxonomy.firebaseapp.com",
+  databaseURL:       "https://butt-rock-taxonomy-default-rtdb.firebaseio.com",
+  projectId:         "butt-rock-taxonomy",
+  storageBucket:     "butt-rock-taxonomy.firebasestorage.app",
+  messagingSenderId: "377217223395",
+  appId:             "1:377217223395:web:303cf629a51737851493d6",
 };
 
 let db = null, fbReady = false;
@@ -705,7 +825,7 @@ const SPOTIFY = {
   'Fuel':'7w29UYBi0qsHi5RTcv3lmA','Crossfade':'2w9zwKO2U8T6iPEB7zyeWT',
   'Staind':'0MJBSF0omhrPaeBXax0bxR','Hoobastank':'20s0P9QLxGqKuCsGwFV1KH',
   'Sick Puppies':'0RWynEdqlZZ8JHwedXNqkv','Seether':'6B5c4sch27tWHAGdarpPaW',
-  'Breaking Benjamin':'5BtHciL0e0BrFseMEJYEMI','Limp Bizkit':'165ZgPlLkK7bf5bDoFc6Ps',
+  'Breaking Benjamin':'5BtHciL0e0BrFseMEJYEMI','Limp Bizkit':'165ZgPlLkK7bf5bDoFc6Xs',
   'Finger Eleven':'5T9KMqWMJLkSTWMDGKBWPH','Skillet':'0eDvMgVFoNV3TpwtrVCoTj',
   'P.O.D.':'1LwDaNsLvGKHlsJOphNfcv','Red':'3tPoCdM5bSyXbeFRQhEGUV',
   'Alter Bridge':'13KSGLDBbcFlfMaBb7jkrb','Taproot':'5pHgGDznJJuPIpNPLvh3gm',
@@ -736,6 +856,7 @@ const NS = 'http://www.w3.org/2000/svg';
 const SVG = document.getElementById('mapsvg');
 const mapArea = document.getElementById('mapArea');
 let VW, VH, pt, pb, pl, pr, PW, PH;
+let hasRendered = false; // guards entrance animation to first render only
 
 function resize() {
   const r = mapArea.getBoundingClientRect();
@@ -820,8 +941,8 @@ function render() {
   ZONES.forEach(z => {
     zonesG.appendChild(mkEl('ellipse', {
       cx: tx(z.cx), cy: ty(z.cy),
-      rx: (z.rx / 100) * PW,
-      ry: (z.ry / 100) * PH,
+      rx: Math.max(0, (z.rx / 100) * PW),
+      ry: Math.max(0, (z.ry / 100) * PH),
       fill: `url(#${z.id})`,
       'pointer-events': 'none',
     }));
@@ -906,6 +1027,15 @@ function render() {
     const g = SVG.querySelector(`.band-g[data-i="${selIdx}"]`);
     if (g) { g.classList.add('sel'); g.querySelector('.dot-ring').setAttribute('opacity','0.75'); }
   }
+
+  // Staggered entrance animation — first render only
+  // Applied after applyFilter() so inline opacity is already '' for visible bands
+  if (!hasRendered) {
+    SVG.querySelectorAll('.band-g').forEach((g, i) => {
+      g.style.animation = `dotFadeIn 0.5s cubic-bezier(0.34,1.56,0.64,1) ${0.06 + i * 0.017}s both`;
+    });
+    hasRendered = true;
+  }
 }
 
 // ── TOOLTIP ──
@@ -985,12 +1115,15 @@ function selectBand(i) {
     spRow.style.display = 'none';
   }
   updateSbSelection(i);
+  renderDpComments();
 }
 
 function closeDp() {
   dp.classList.remove('on');
   document.getElementById('spEmbed').src = '';
   document.getElementById('spRow').style.display = 'none';
+  const dpc = document.getElementById('dpComments');
+  if (dpc) dpc.style.display = 'none';
   if (selIdx !== null) {
     const g = SVG.querySelector(`.band-g[data-i="${selIdx}"]`);
     if (g) { g.classList.remove('sel','hov'); g.querySelector('.dot-ring').setAttribute('opacity','0'); }
@@ -1027,7 +1160,8 @@ function applyFilter() {
   document.querySelectorAll('.band-g').forEach(el => {
     const band = BANDS[+el.dataset.i];
     const dim = activeFilter !== 'All' && !band.genres.includes(activeFilter);
-    el.style.opacity = dim ? '0.07' : '1';
+    // Use '' (remove inline) for visible bands so CSS animation can run on first load
+    el.style.opacity = dim ? '0.07' : '';
     el.style.transition = 'opacity 0.25s';
   });
   renderSbList();
@@ -1183,11 +1317,124 @@ function updateSbSelection(idx) {
 // ── TABS ──
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  document.getElementById('tabMap').classList.toggle('active', tab === 'map');
-  document.getElementById('tabCom').classList.toggle('active', tab === 'community');
+  document.getElementById('tabMap').classList.toggle('active',  tab === 'map');
+  document.getElementById('tabFeed').classList.toggle('active', tab === 'feed');
+  document.getElementById('tabCom').classList.toggle('active',  tab === 'community');
   const tog = document.getElementById('sbToggle');
   tog.style.display = tab === 'map' ? '' : 'none';
-  if (tab === 'community' && sbOpen) toggleSidebar();
+  if (tab !== 'map' && sbOpen) toggleSidebar();
+  // Mute Spotify whenever we leave the Map tab
+  if (tab !== 'map') document.getElementById('spEmbed').src = '';
+  if (tab === 'feed') initFeed();
+}
+
+// ── ACTIVITY FEED ──
+let fbFeedInit = false;
+function initFeed() {
+  if (fbFeedInit) return; fbFeedInit = true;
+  renderFeed(); // show current cache (may be empty until Firebase responds)
+}
+
+function renderFeed() {
+  const el      = document.getElementById('feedList');
+  const countEl = document.getElementById('feedCount');
+  if (!el) return;
+
+  if (!fbReady) {
+    el.innerHTML = fbOfflineBanner();
+    return;
+  }
+
+  // Merge comments + suggestions, newest-first
+  const items = [
+    ...allComments.map(c    => ({...c, _type:'comment'})),
+    ...allSuggestions.map(s => ({...s, _type:'suggestion'})),
+  ].sort((a, b) => b.time - a.time);
+
+  if (countEl) countEl.textContent = items.length;
+
+  if (!items.length) {
+    el.innerHTML = '<div class="comm-empty">No activity yet — start the conversation in the Community tab.</div>';
+    return;
+  }
+
+  el.innerHTML = items.map(item => {
+    const isComment = item._type === 'comment';
+    const who    = isComment ? item.author : item.by;
+    const letter = (who || '?')[0].toUpperCase();
+    const name   = esc(who || 'Anonymous');
+    const ts     = timeAgo(item.time);
+
+    let bodyHTML;
+    if (isComment) {
+      const bandIdx = item.band ? BANDS.findIndex(b => b.name === item.band) : -1;
+      bodyHTML =
+        `<div class="feed-text">${esc(item.text)}</div>` +
+        (item.band && bandIdx > -1
+          ? `<div class="feed-band-pill"
+               onclick="event.stopPropagation();switchTab('map');selectBand(${bandIdx})"
+             >${esc(item.band)}</div>`
+          : '');
+    } else {
+      bodyHTML =
+        `<div class="feed-sugg">suggested adding <strong>${esc(item.band)}</strong>` +
+        (item.genre ? ` &middot; <span class="sugg-genre">${esc(item.genre)}</span>` : '') +
+        `<span class="feed-votes">▲ ${item.votes}</span></div>`;
+    }
+
+    return `<div class="feed-card">
+      <div class="feed-avatar">${letter}</div>
+      <div class="feed-body">
+        <div class="feed-meta">
+          <span class="feed-author">${name}</span>
+          <span class="feed-time">${ts}</span>
+          <span class="feed-type ${item._type}">${item._type}</span>
+        </div>
+        ${bodyHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── DETAIL PANEL: PER-BAND COMMENTS ──
+function renderDpComments() {
+  const section = document.getElementById('dpComments');
+  const el      = document.getElementById('dpComList');
+  if (!section || !el || selIdx === null) return;
+
+  const band     = BANDS[selIdx];
+  const comments = allComments.filter(c => c.band === band.name);
+
+  section.style.display = '';
+
+  if (!comments.length) {
+    el.innerHTML =
+      `<div class="dp-com-empty">No comments yet — be the first to weigh in.` +
+      `<button class="dp-com-link" onclick="switchToComment(${JSON.stringify(band.name)})">Leave a comment →</button></div>`;
+    return;
+  }
+
+  el.innerHTML = comments.slice(0, 6).map(c =>
+    `<div class="dp-com-item">
+       <div class="dp-cm-meta">
+         <span class="dp-cm-author">${esc(c.author)}</span>
+         <span class="dp-cm-time">${timeAgo(c.time)}</span>
+       </div>
+       <div class="dp-cm-text">${esc(c.text)}</div>
+     </div>`
+  ).join('');
+}
+
+// Switch to Community tab and pre-select the band in the comment form
+function switchToComment(bandName) {
+  closeDp();
+  switchTab('community');
+  const sel = document.getElementById('cmBand');
+  if (sel) sel.value = bandName;
+  setTimeout(() => {
+    const ta = document.getElementById('cmText');
+    if (ta) { ta.focus(); ta.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  }, 200);
 }
 
 // ── COMMUNITY UTILS ──
@@ -1221,16 +1468,21 @@ function populateBandSelect() {
 //   /suggestions → {id, band, genre, by, votes, time}
 // ─────────────────────────────────────────────
 
+// Global in-memory caches — populated by real-time listeners.
+// Used by the Community tab, Activity Feed, and detail panel comments.
+let allComments    = [];
+let allSuggestions = [];
+
 // ── loadComments() ──
-// Real-time listener ordered by time (ascending from Firebase,
-// reversed to newest-first before rendering).
+// Real-time listener ordered by time; populates allComments (newest-first),
+// then refreshes every surface that displays comment data.
 function loadComments() {
   firebase.database().ref('comments').orderByChild('time').on('value', snap => {
-    const list = [];
-    snap.forEach(child => {
-      list.unshift({ ...child.val(), id: child.key }); // unshift → newest first
-    });
-    renderComments(list);
+    allComments = [];
+    snap.forEach(child => allComments.unshift({ ...child.val(), id: child.key }));
+    renderComments(allComments);
+    renderFeed();
+    renderDpComments();
   });
 }
 
@@ -1242,15 +1494,15 @@ function saveComment(comment) {
 }
 
 // ── loadSuggestions() ──
-// Real-time listener; client-side sort by votes descending.
+// Real-time listener; populates allSuggestions sorted by votes descending,
+// then refreshes every surface that displays suggestion data.
 function loadSuggestions() {
   firebase.database().ref('suggestions').on('value', snap => {
-    const list = [];
-    snap.forEach(child => {
-      list.push({ ...child.val(), id: child.key });
-    });
-    list.sort((a, b) => b.votes - a.votes);
-    renderSuggestions(list);
+    allSuggestions = [];
+    snap.forEach(child => allSuggestions.push({ ...child.val(), id: child.key }));
+    allSuggestions.sort((a, b) => b.votes - a.votes);
+    renderSuggestions(allSuggestions);
+    renderFeed();
   });
 }
 
@@ -1272,10 +1524,19 @@ function updateVote(suggestionId, newVoteCount) {
 // ─────────────────────────────────────────────
 // COMMUNITY: COMMENTS (UI)
 // ─────────────────────────────────────────────
+let fbComInit = false;
 function initComments() {
+  if (fbComInit) return; fbComInit = true;
+
   const charEl = document.getElementById('cmText');
   if (charEl) charEl.addEventListener('input', () => {
     document.getElementById('cmChars').textContent = charEl.value.length + '/500';
+  });
+
+  // Auto-dismiss name validation error as soon as user starts typing
+  const nameEl = document.getElementById('cmName');
+  if (nameEl) nameEl.addEventListener('input', () => {
+    document.getElementById('cmNameErr').classList.remove('show');
   });
 
   if (!fbReady) {
@@ -1331,7 +1592,10 @@ function submitComment() {
 let myVotes = new Set(JSON.parse(localStorage.getItem('buttrock-myvotes') || '[]'));
 function saveMyVotes() { localStorage.setItem('buttrock-myvotes', JSON.stringify([...myVotes])); }
 
+let fbSuggInit = false;
 function initSuggestions() {
+  if (fbSuggInit) return; fbSuggInit = true;
+
   if (!fbReady) {
     document.getElementById('suggList').innerHTML = fbOfflineBanner();
     return;
@@ -1410,6 +1674,7 @@ buildSidebar();
 populateBandSelect();
 initComments();
 initSuggestions();
+initFeed();
 
 // Re-render SVG when map area changes size (sidebar transition, window resize)
 let resizeT;
