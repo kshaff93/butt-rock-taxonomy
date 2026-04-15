@@ -811,34 +811,18 @@ function getTier(b) { return TIERS.find(t => t.test(b)) || TIERS[5]; }
 BANDS.forEach(b => { b._tier = getTier(b); });
 
 // ── SPOTIFY ARTIST IDS ──
+// Only verified IDs are listed here. Bands without an entry will not show the player.
+// Add more entries as you verify them from open.spotify.com/artist/{ID}
 const SPOTIFY = {
-  'Nickelback':'2eeE8dUTWN9KQKe14jBZ4T','Creed':'6d24kC5fxHFOSEAmjQPPhc',
-  '3 Doors Down':'2JEbJHBCbPvSCM3bRwMxMa','Hinder':'0JQiXezFz0MJWV9UNcFVSW',
-  'Theory of a Deadman':'2XnBwblw31dfGnspMIwgWz','Puddle of Mudd':'0TMnMGBfDmMwAGaSRgpcUC',
-  'Buckcherry':'0R0TcxfSE8hBU7rUBwVhfE','Trapt':'5I3VPDOvCpQHz08GOxUFql',
-  'Five Finger Death Punch':'5t28BP42x2axFnqOLMVlYm','Saving Abel':'1gRJexX7TFrXEEJPdh3jVo',
-  'Godsmack':'3t5xRXzsuZmMDkQzgOX35S','Three Days Grace':'2xiIXseIJcq3nG7C8fHyO3',
-  'Shinedown':'70BYFdaZbEKbeauJ670ysQ','Disturbed':'3TOqt5oJwL9BE2o7Q1UrIa',
-  'Saliva':'6JW8wliOEwaDZ231ZY6n1B','Daughtry':'1uQWmt1OhuHGRKmZ2ZcL6p',
-  'Lifehouse':'7mFVLkEDT3u92KcBGiIQ3R','Drowning Pool':'0YLVq65SKGDB3XGgFFSd0q',
-  'Default':'7d3XVLGI7a9Mh4VqIyDNqL','Papa Roach':'4RddZ3iHvSpGV4dvATac9X',
-  'Fuel':'7w29UYBi0qsHi5RTcv3lmA','Crossfade':'2w9zwKO2U8T6iPEB7zyeWT',
-  'Staind':'0MJBSF0omhrPaeBXax0bxR','Hoobastank':'20s0P9QLxGqKuCsGwFV1KH',
-  'Sick Puppies':'0RWynEdqlZZ8JHwedXNqkv','Seether':'6B5c4sch27tWHAGdarpPaW',
-  'Breaking Benjamin':'5BtHciL0e0BrFseMEJYEMI','Limp Bizkit':'165ZgPlLkK7bf5bDoFc6Xs',
-  'Finger Eleven':'5T9KMqWMJLkSTWMDGKBWPH','Skillet':'0eDvMgVFoNV3TpwtrVCoTj',
-  'P.O.D.':'1LwDaNsLvGKHlsJOphNfcv','Red':'3tPoCdM5bSyXbeFRQhEGUV',
-  'Alter Bridge':'13KSGLDBbcFlfMaBb7jkrb','Taproot':'5pHgGDznJJuPIpNPLvh3gm',
-  'Chevelle':'0BShaqDBDmMbBwub2lnIj4','Cold':'3AO3I4h5ZNppOC3JzEIYzV',
-  'Evanescence':'5nGIFgo0shDenQYSE0Writ','10 Years':'7sTIs0cRAQpajPHKbR0q0j',
-  'Linkin Park':'6XyY86QOPPrYVGvF9ch6wz','Avenged Sevenfold':'0p4nmQO2msCgU4IF37Wi3j',
-  'Bush':'3bhjJBITayYFjccHJzlfTP','Incubus':'3YcBF2ttyueytpXtEzn1Za',
-  'Slipknot':'05fG473RIxrVXzjQT3NRAO','Korn':'3RNrq3jvMZxD9ZyoOZbQOD',
-  'Mudvayne':'3TIkzEfJhYBpThVQl7W9LJ','Stone Temple Pilots':'1tqhsYv8yBBdwANFNzHtcr',
-  'Deftones':'6Ghvu1VvMGScGpOUJBAHNH','System of a Down':'5eAWCfyUhZtHHtBdNk56l1',
-  'A Perfect Circle':'0Wxy7TOniMoMl1xmpEW2qG','Pearl Jam':'1dfeR4HaWDbWqFHLkxsg1d',
-  'Soundgarden':'4MFYP1I2WULD16UrChb2Ll','Alice in Chains':'64tNsm6TnZe2zpcMVMOoHL',
-  'Tool':'2yEwvVSSSUkcLeSTNyHKh8',
+  'Nickelback':            '6deZN1bslXzeGvOLaLMOIF',
+  'Creed':                 '43sZBwHjahUvgbx1WNIkIz',
+  '3 Doors Down':          '2RTUTCvo6onsAnheUk3aL9',
+  'Hinder':                '6BMhCQJYHxxKAeqYS1p5rY',
+  'Five Finger Death Punch':'5t28BP42x2axFnqOOMg3CM',
+  'Godsmack':              '6gZq1Q6bdOxsUPUG1TaFbF',
+  'Disturbed':             '3TOqt5oJwL9BE2NG9MEwDa',
+  'Shinedown':             '70BYFdaZbEKbeauJ670ysI',
+  'Breaking Benjamin':     '5BtHciL0e0zOP7prIHn3pP',
 };
 
 // ── GENRE ZONES (data-space: x=0-100 left→right, y=0-100 bottom→top) ──
