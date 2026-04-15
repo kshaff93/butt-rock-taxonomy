@@ -535,33 +535,9 @@ header .sub{
   color:var(--gold);cursor:default;
 }
 /* ── related mini player (slide-down) ── */
-#relPlayer{
-  overflow:hidden;max-height:0;
-  transition:max-height 0.32s cubic-bezier(0.4,0,0.2,1),
-             margin-top 0.32s cubic-bezier(0.4,0,0.2,1);
-  margin-top:0;
-}
-#relPlayer.open{max-height:130px;margin-top:8px;}
-.rel-player-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 0 5px;
-  font-family:'Barlow Condensed',sans-serif;font-size:0.63rem;
-  letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);
-}
-.rel-player-close{
-  background:none;border:none;color:#443322;
-  font-size:0.82rem;cursor:pointer;padding:0 2px;
-  transition:color 0.15s;line-height:1;
-}
-.rel-player-close:hover{color:var(--text-dim);}
-#relPlayerEmbed{border-radius:4px;display:block;}
-#relPlayerLink{
-  display:block;text-align:center;padding:14px 0 4px;
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:0.72rem;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--gold-dim);text-decoration:none;transition:color 0.15s;
-}
-#relPlayerLink:hover{color:var(--gold);}
+#relatedPlayer{overflow:hidden;}
+#relatedPlayerIframe{display:block;}
+#relatedPlayerLink:hover{color:var(--gold);}
 
 /* ── toast notification ── */
 #toast{
@@ -715,23 +691,38 @@ header .sub{
         </div>
       </div>
     </div>
-    <div id="spRow" style="display:none;margin-top:9px;padding-top:8px;border-top:1px solid #1e1a15;">
-      <iframe id="spEmbed" src="" width="100%" height="80" frameborder="0"
+    <div id="spRow" style="display:none;margin-top:10px;">
+      <iframe id="spotifyEmbed"
+        src=""
+        width="100%"
+        height="152"
+        frameBorder="0"
+        allowfullscreen=""
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        style="border-radius:8px;display:block;"></iframe>
+        loading="lazy"
+        style="border-radius:12px;border:none;">
+      </iframe>
     </div>
     <div id="dpRelated" style="display:none;">
       <div class="rel-title">Similar Artists</div>
       <div class="rel-pills" id="dpRelPills"></div>
-      <div id="relPlayer">
-        <div class="rel-player-bar">
-          <span id="relPlayerName"></span>
-          <button class="rel-player-close" onclick="closeRelPlayer()">✕</button>
+      <div id="relatedPlayer" style="display:none;margin-top:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span id="relatedPlayerName" style="font-size:0.7rem;color:#887755;text-transform:uppercase;letter-spacing:1px;"></span>
+          <button onclick="closeRelPlayer()" style="background:none;border:none;color:#665;cursor:pointer;font-size:0.9rem;">✕</button>
         </div>
-        <iframe id="relPlayerEmbed" src="" width="100%" height="80" frameborder="0"
+        <iframe id="relatedPlayerIframe"
+          src=""
+          width="100%"
+          height="80"
+          frameBorder="0"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"></iframe>
-        <a id="relPlayerLink" href="" target="_blank" rel="noopener"></a>
+          loading="lazy"
+          style="border-radius:8px;border:none;margin-top:4px;">
+        </iframe>
+        <a id="relatedPlayerLink" href="" target="_blank" rel="noopener"
+          style="display:none;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:#8b6914;text-decoration:none;padding:10px 0;display:none;">
+        </a>
       </div>
     </div>
     <div id="dpComments" style="display:none;">
@@ -1249,20 +1240,17 @@ function selectBand(i) {
   }, 40);
   dp.classList.add('on');
   // Spotify embed
-  const spId   = SPOTIFY[band.name];
-  const spRow  = document.getElementById('spRow');
-  const spEmbed = document.getElementById('spEmbed');
-  console.log('[BRT] Spotify ID for', band.name, ':', spId || '(none)');
-  if (spId) {
+  const spotifyId    = SPOTIFY[band.name];
+  const spRow        = document.getElementById('spRow');
+  const spotifyEmbed = document.getElementById('spotifyEmbed');
+  if (spotifyId && spRow && spotifyEmbed) {
+    spotifyEmbed.src = 'https://open.spotify.com/embed/artist/' + spotifyId + '?utm_source=generator&theme=0';
     spRow.style.display = 'block';
-    // Set src after display so the iframe renders in a visible container
-    requestAnimationFrame(() => {
-      spEmbed.src = `https://open.spotify.com/embed/artist/${spId}?utm_source=generator&theme=0`;
-      console.log('[BRT] spEmbed src set:', spEmbed.src);
-    });
-  } else {
-    spEmbed.src = '';
+    console.log('Setting spotify src:', spotifyEmbed.src);
+    console.log('spRow display:', spRow.style.display);
+  } else if (spRow) {
     spRow.style.display = 'none';
+    if (spotifyEmbed) spotifyEmbed.src = '';
   }
   updateSbSelection(i);
   renderDpRelated();
@@ -1271,8 +1259,10 @@ function selectBand(i) {
 
 function closeDp() {
   dp.classList.remove('on');
-  document.getElementById('spEmbed').src = '';
-  document.getElementById('spRow').style.display = 'none';
+  const spRow        = document.getElementById('spRow');
+  const spotifyEmbed = document.getElementById('spotifyEmbed');
+  if (spRow) spRow.style.display = 'none';
+  if (spotifyEmbed) spotifyEmbed.src = '';
   closeRelPlayer();
   const dpr = document.getElementById('dpRelated');
   if (dpr) dpr.style.display = 'none';
@@ -1478,7 +1468,7 @@ function switchTab(tab) {
   tog.style.display = tab === 'map' ? '' : 'none';
   if (tab !== 'map' && sbOpen) toggleSidebar();
   // Mute Spotify whenever we leave the Map tab
-  if (tab !== 'map') document.getElementById('spEmbed').src = '';
+  if (tab !== 'map') { const se = document.getElementById('spotifyEmbed'); if (se) se.src = ''; }
   if (tab === 'feed') initFeed();
 }
 
@@ -1658,13 +1648,14 @@ function renderDpRelated() {
 }
 
 function playRelated(btn, name, spotifyId) {
-  const player = document.getElementById('relPlayer');
-  const embed  = document.getElementById('relPlayerEmbed');
-  const link   = document.getElementById('relPlayerLink');
-  const nameEl = document.getElementById('relPlayerName');
+  const player = document.getElementById('relatedPlayer');
+  const embed  = document.getElementById('relatedPlayerIframe');
+  const link   = document.getElementById('relatedPlayerLink');
+  const nameEl = document.getElementById('relatedPlayerName');
+  if (!player || !embed) return;
 
   // Toggle: clicking the same artist's play button closes the player
-  if (player.classList.contains('open') && player.dataset.playing === name) {
+  if (player.style.display !== 'none' && player.dataset.playing === name) {
     closeRelPlayer();
     return;
   }
@@ -1677,36 +1668,37 @@ function playRelated(btn, name, spotifyId) {
   btn.classList.add('playing');
   btn.textContent = '■';
 
-  nameEl.textContent = name;
+  if (nameEl) nameEl.textContent = name;
   player.dataset.playing = name;
 
   if (spotifyId) {
-    embed.src = `https://open.spotify.com/embed/artist/${spotifyId}?utm_source=generator&theme=0`;
+    embed.src = 'https://open.spotify.com/embed/artist/' + spotifyId + '?utm_source=generator&theme=0';
     embed.style.display = 'block';
-    link.style.display  = 'none';
+    if (link) link.style.display = 'none';
   } else {
-    embed.src           = '';
+    embed.src = '';
     embed.style.display = 'none';
-    link.href           = `https://open.spotify.com/search/${encodeURIComponent(name)}`;
-    link.textContent    = `Search "${name}" on Spotify ↗`;
-    link.style.display  = 'block';
+    if (link) {
+      link.href        = 'https://open.spotify.com/search/' + encodeURIComponent(name);
+      link.textContent = 'Search "' + name + '" on Spotify ↗';
+      link.style.display = 'block';
+    }
   }
 
-  player.classList.add('open');
+  player.style.display = 'block';
 }
 
 function closeRelPlayer() {
-  const player = document.getElementById('relPlayer');
-  const embed  = document.getElementById('relPlayerEmbed');
+  const player = document.getElementById('relatedPlayer');
+  const embed  = document.getElementById('relatedPlayerIframe');
   if (!player) return;
-  player.classList.remove('open');
+  player.style.display = 'none';
   delete player.dataset.playing;
+  if (embed) embed.src = '';
   document.querySelectorAll('.rel-play-btn').forEach(b => {
     b.classList.remove('playing');
     b.textContent = '▶';
   });
-  // Clear src after slide-out animation so Spotify audio stops
-  setTimeout(() => { if (!player.classList.contains('open')) embed.src = ''; }, 340);
 }
 
 function suggestRelated(bandName, parentBand, pillEl) {
