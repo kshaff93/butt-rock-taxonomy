@@ -574,6 +574,18 @@ header .sub{
   transition:opacity 0.22s,transform 0.22s;white-space:nowrap;
 }
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+#suggestToast{
+  position:fixed;right:20px;bottom:20px;
+  background:var(--gold);color:#080604;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.78rem;letter-spacing:1px;
+  padding:8px 12px;border-radius:4px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.45);
+  opacity:0;transform:translateX(18px);
+  pointer-events:none;z-index:9100;
+  transition:opacity 0.2s,transform 0.2s;
+}
+#suggestToast.on{opacity:1;transform:translateX(0);}
 
 /* ── suggestion source tag ── */
 .sugg-source{
@@ -1597,7 +1609,7 @@ function renderFeed() {
         `<div class="feed-sugg">${isDiscovery ? '🧭 ' : ''}suggested adding <strong>${esc(item.band)}</strong>` +
         (item.source ? ` <span class="sugg-source">${esc(item.source)}</span>` : '') +
         (item.genre && !item.source ? ` &middot; <span class="sugg-genre">${esc(item.genre)}</span>` : '') +
-        `<span class="feed-votes">▲ ${item.votes}</span></div>`;
+        `<span class="feed-votes">▲ ${getSuggestionScore(item)}</span></div>`;
     }
 
     const isDiscovery = item._type === 'suggestion' && !!(item.source && item.source.startsWith('via '));
@@ -1686,7 +1698,7 @@ function renderDpRelated() {
 
   const pillsEl = document.getElementById('dpRelPills');
   pillsEl.innerHTML = related.map(({name}, idx) => {
-    const done = discovered.has(name);
+    const done = discovered.has(name) || allSuggestions.some(s => s.band && s.band.toLowerCase() === name.toLowerCase());
     return `<div class="rel-pill-wrap" data-idx="${idx}">` +
       `<button class="rel-play-btn" style="color:${col}88;border-color:${col}44">▶</button>` +
       `<button class="rel-pill${done ? ' done' : ''}"${done ? ' disabled' : ''}>` +
@@ -1782,42 +1794,62 @@ function suggestRelated(bandName, parentBand, pillEl) {
 
   if (existing) {
     if (!myVotes.has(existing.id)) {
-      updateVote(existing.id, existing.votes + 1);
+      const existingScore = getSuggestionScore(existing);
+      updateVote(existing.id, existingScore + 1);
       myVotes.add(existing.id);
       saveMyVotes();
-      showToast(`Upvoted "${bandName}"!`);
+      showSuggestToast(`Added ${bandName} to suggestions!`);
+      discovered.add(bandName);
+      saveDiscovered();
+      markRelatedPillDone(pillEl);
     } else {
       showToast(`Already voted for "${bandName}"`);
     }
   } else {
     const parentData = BANDS.find(b => b.name === parentBand);
-    const ref = saveSuggestion({
-      band:   bandName,
-      genre:  parentData ? parentData.genres[0] : '',
-      by:     'Discovery',
-      votes:  1,
-      time:   Date.now(),
+    const byName = (localStorage.getItem('buttrock-username') || '').trim() || 'Anonymous';
+    const suggestionsRef = firebase.database().ref('suggestions');
+    const newRef = suggestionsRef.push();
+    const suggestionObject = {
+      id: newRef.key,
+      band: bandName,
+      genre: parentData ? parentData.genres[0] : '',
+      by: byName,
+      upvotes: 1,
+      downvotes: 0,
+      votes: 1,
+      time: Date.now(),
       source: `via ${parentBand}`,
-    });
-    myVotes.add(ref.key);
-    saveMyVotes();
-    showToast(`Added "${bandName}" to suggestions!`);
-  }
-
-  // Persist discovery so the pill stays checked across sessions
-  discovered.add(bandName);
-  saveDiscovered();
-
-  // Update pill immediately
-  if (pillEl) {
-    pillEl.classList.add('done');
-    pillEl.disabled = true;
-    const icon = pillEl.querySelector('.pill-icon');
-    if (icon) icon.textContent = '✓';
+    };
+    console.log('Creating suggestion:', suggestionObject);
+    newRef.set(suggestionObject)
+      .then(() => {
+        console.log('Suggestion pushed to Firebase successfully');
+        myVotes.add(newRef.key);
+        saveMyVotes();
+        discovered.add(bandName);
+        saveDiscovered();
+        showSuggestToast(`Added ${bandName} to suggestions!`);
+        markRelatedPillDone(pillEl);
+      })
+      .catch(err => {
+        console.warn('Failed to create suggestion:', err.message);
+        showToast('Could not create suggestion');
+      });
+    return;
   }
 }
 
+function markRelatedPillDone(pillEl) {
+  if (!pillEl) return;
+  pillEl.classList.add('done');
+  pillEl.disabled = true;
+  const icon = pillEl.querySelector('.pill-icon');
+  if (icon) icon.textContent = '✓';
+}
+
 let _toastTimer;
+let _suggestToastTimer;
 function showToast(msg) {
   console.log('[BRT] showToast:', msg);
   const t = document.getElementById('toast');
@@ -1826,6 +1858,14 @@ function showToast(msg) {
   t.classList.add('on');
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => t.classList.remove('on'), 2500);
+}
+function showSuggestToast(msg) {
+  const t = document.getElementById('suggestToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(_suggestToastTimer);
+  _suggestToastTimer = setTimeout(() => t.classList.remove('on'), 2000);
 }
 
 // ── COMMUNITY UTILS ──
@@ -1908,8 +1948,14 @@ function saveComment(comment) {
 function loadSuggestions() {
   firebase.database().ref('suggestions').on('value', snap => {
     allSuggestions = [];
-    snap.forEach(child => allSuggestions.push({ ...child.val(), id: child.key }));
-    allSuggestions.sort((a, b) => b.votes - a.votes);
+    snap.forEach(child => {
+      const raw = child.val() || {};
+      const upvotes = Math.max(0, Number(raw.upvotes) || Number(raw.votes) || 0);
+      const downvotes = Math.max(0, Number(raw.downvotes) || 0);
+      const votes = upvotes - downvotes;
+      allSuggestions.push({ ...raw, id: child.key, upvotes, downvotes, votes });
+    });
+    allSuggestions.sort((a, b) => getSuggestionScore(b) - getSuggestionScore(a));
     renderSuggestions(allSuggestions);
     renderFeed();
   });
@@ -1920,14 +1966,27 @@ function loadSuggestions() {
 // Returns the DatabaseReference so the caller can read .key for vote tracking.
 function saveSuggestion(suggestion) {
   const ref = firebase.database().ref('suggestions').push();
-  ref.set({ ...suggestion, id: ref.key });
+  const upvotes = Math.max(0, Number(suggestion.upvotes) || Number(suggestion.votes) || 0);
+  const downvotes = Math.max(0, Number(suggestion.downvotes) || 0);
+  ref.set({ ...suggestion, upvotes, downvotes, votes: upvotes - downvotes, id: ref.key });
   return ref;
 }
 
 // ── updateVote(suggestionId, newVoteCount) ──
 // Overwrites only the `votes` field on the target suggestion.
 function updateVote(suggestionId, newVoteCount) {
-  return firebase.database().ref(`suggestions/${suggestionId}/votes`).set(newVoteCount);
+  return firebase.database().ref(`suggestions/${suggestionId}`).transaction(suggestion => {
+    if (!suggestion) return suggestion;
+    const downvotes = Math.max(0, Number(suggestion.downvotes) || 0);
+    const upvotes = Math.max(0, newVoteCount + downvotes);
+    return { ...suggestion, upvotes, downvotes, votes: upvotes - downvotes };
+  });
+}
+
+function getSuggestionScore(suggestion) {
+  const upvotes = Math.max(0, Number(suggestion.upvotes) || Number(suggestion.votes) || 0);
+  const downvotes = Math.max(0, Number(suggestion.downvotes) || 0);
+  return upvotes - downvotes;
 }
 
 // ─────────────────────────────────────────────
@@ -2075,10 +2134,11 @@ function renderSuggestions(list) {
   }
   el.innerHTML = list.map(s => {
     const voted = myVotes.has(s.id);
+    const score = getSuggestionScore(s);
     return `<div class="suggestion">
-      <button class="vote-btn${voted ? ' voted' : ''}" onclick="toggleVote('${s.id}',${s.votes},${voted})">
+      <button class="vote-btn${voted ? ' voted' : ''}" onclick="toggleVote('${s.id}',${score},${voted})">
         <span class="vote-arr">▲</span>
-        <span class="vote-n">${s.votes}</span>
+        <span class="vote-n">${score}</span>
       </button>
       <div class="sugg-info">
         <div class="sugg-name">${esc(s.band)}</div>
@@ -2111,7 +2171,7 @@ function submitSuggestion() {
   if (!band) { errEl.textContent = 'Please enter the band name.'; errEl.classList.add('show'); return; }
   errEl.classList.remove('show');
 
-  const ref = saveSuggestion({ band, genre, by, votes: 1, time: Date.now() });
+  const ref = saveSuggestion({ band, genre, by, upvotes: 1, downvotes: 0, votes: 1, time: Date.now() });
   myVotes.add(ref.key);
   saveMyVotes();
   bandEl.value  = '';
@@ -2148,5 +2208,6 @@ if (ro) ro.observe(mapArea);
 else window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(render, 140); });
 </script>
 <div id="toast"></div>
+<div id="suggestToast"></div>
 </body>
 </html>
