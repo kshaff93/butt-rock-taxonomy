@@ -449,6 +449,22 @@ header .sub{
   transition:border-color 0.15s;
 }
 .suggestion:hover{border-color:#2a2218;}
+.sugg-list-divider{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.72rem;letter-spacing:2px;color:var(--gold);
+  margin:4px 0 2px;padding:4px 0;
+  border-top:1px solid #3a2f1a;border-bottom:1px solid #3a2f1a;
+  text-transform:uppercase;
+}
+.sugg-filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.sugg-filter-btn{
+  background:transparent;border:1px solid #201c14;color:#554433;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;
+  font-weight:700;padding:2px 8px;border-radius:2px;
+  text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+}
+.sugg-filter-btn:hover{color:var(--text-dim);border-color:#3a2f1a;}
+.sugg-filter-btn.active{background:#1a140a;color:var(--gold);border-color:var(--gold-dim);}
 .vote-btn{
   display:flex;flex-direction:column;align-items:center;
   background:none;border:none;cursor:pointer;
@@ -467,6 +483,27 @@ header .sub{
 .sugg-info{flex:1;min-width:0;}
 .sugg-name{font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;}
 .sugg-by{font-size:0.58rem;color:#443;letter-spacing:1px;margin-top:1px;}
+.sugg-status{
+  font-size:0.54rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:1px 6px;border-radius:10px;display:inline-block;margin-left:6px;
+}
+.sugg-status.pending{background:#7772;color:#887755;border:1px solid #665544;}
+.sugg-status.approved{
+  background:#d4a44a20;color:var(--gold);border:1px solid var(--gold-dim);
+  animation:suggPulse 1.35s ease-in-out infinite;
+}
+.sugg-status.rejected{background:#cc444420;color:#c87f7f;border:1px solid #7a3a3a;}
+.sugg-status.added{background:#44aa8820;color:var(--green);border:1px solid #44aa88;}
+@keyframes suggPulse{0%,100%{opacity:1;}50%{opacity:0.65;}}
+.sugg-admin{display:flex;gap:4px;margin-top:6px;}
+.sugg-admin-btn{
+  background:transparent;border:1px solid #2a2218;color:#776655;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;
+  font-weight:700;padding:2px 7px;letter-spacing:1px;text-transform:uppercase;
+  border-radius:2px;cursor:pointer;transition:all 0.15s;
+}
+.sugg-admin-btn:hover{border-color:var(--gold-dim);color:var(--gold);}
+.sugg-admin-btn.reset:hover{border-color:#7a3a3a;color:#c87f7f;}
 .sugg-genre{
   font-size:0.57rem;color:#7a44aa;
   background:#7a44aa18;
@@ -574,6 +611,22 @@ header .sub{
   transition:opacity 0.22s,transform 0.22s;white-space:nowrap;
 }
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+#approvedBanner{
+  position:absolute;left:0;right:0;bottom:0;z-index:120;
+  display:none;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 12px;background:linear-gradient(90deg,#d4a44a,#e6bc6a);
+  color:#080604;border-top:1px solid #8b6914;
+}
+#approvedBannerText{
+  font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.6px;
+}
+#approvedBannerActions{display:flex;gap:6px;flex-shrink:0;}
+.approved-banner-btn{
+  border:1px solid #5a3f0e;background:#1a1208;color:#f0d69c;
+  font-family:'Bebas Neue',sans-serif;font-size:0.72rem;letter-spacing:1.4px;
+  padding:4px 10px;border-radius:2px;cursor:pointer;
+}
+.approved-banner-btn:hover{background:#2a1a0c;}
 #suggestToast{
   position:fixed;right:20px;bottom:20px;
   background:var(--gold);color:#080604;
@@ -605,6 +658,12 @@ header .sub{
   background:var(--surface2);border:1px solid var(--border);
   border-radius:5px;padding:12px 14px;
 }
+.feed-card.milestone{
+  border-left:4px solid var(--gold);
+  background:linear-gradient(90deg,#d4a44a16 0%,var(--surface2) 40%);
+}
+.feed-card.milestone .feed-text,
+.feed-card.milestone .feed-sugg{font-size:0.86rem;color:#d9c39a;}
 .feed-avatar{
   flex-shrink:0;width:32px;height:32px;border-radius:50%;
   background:#1e1608;border:1px solid #3a2c18;
@@ -626,6 +685,7 @@ header .sub{
 }
 .feed-type.comment   {background:#d4a44a18;color:var(--gold);border:1px solid #d4a44a33;}
 .feed-type.suggestion{background:#7a44aa18;color:#9a64ca;border:1px solid #7a44aa33;}
+.feed-type.milestone {background:#d4a44a30;color:#f2d89f;border:1px solid #d4a44a66;}
 .feed-text{
   font-family:'Special Elite',cursive;
   font-size:0.77rem;color:#aa9977;line-height:1.5;word-break:break-word;
@@ -765,6 +825,13 @@ header .sub{
       <div class="dp-com-list" id="dpComList"></div>
     </div>
   </div>
+  <div id="approvedBanner">
+    <div id="approvedBannerText"></div>
+    <div id="approvedBannerActions">
+      <button class="approved-banner-btn" id="approvedAddBtn" onclick="addApprovedFromBanner()">Add to Map</button>
+      <button class="approved-banner-btn" id="approvedDismissBtn" onclick="dismissApprovedBanner()">Dismiss</button>
+    </div>
+  </div>
 </div><!-- /#mapArea -->
 </div><!-- /#tabMap -->
 
@@ -787,6 +854,12 @@ header .sub{
       <input class="comm-in" id="sgGenre" type="text" placeholder="Genre (optional)"   maxlength="30" style="flex:0 0 120px;">
       <button class="comm-btn" onclick="submitSuggestion()">Suggest</button>
       <div class="comm-err" id="sgErr" style="flex-basis:100%;margin-top:0;"></div>
+    </div>
+    <div class="sugg-filters">
+      <button class="sugg-filter-btn active" id="suggFilterAll" onclick="setSuggestionFilter('all')">All</button>
+      <button class="sugg-filter-btn" id="suggFilterApproved" onclick="setSuggestionFilter('approved')">Approved</button>
+      <button class="sugg-filter-btn" id="suggFilterPending" onclick="setSuggestionFilter('pending')">Pending</button>
+      <button class="sugg-filter-btn" id="suggFilterRejected" onclick="setSuggestionFilter('rejected')">Rejected</button>
     </div>
     <div class="sugg-list" id="suggList"></div>
 
@@ -858,6 +931,10 @@ try {
 } catch(e) {
   console.warn('Firebase not initialised — community features disabled:', e.message);
 }
+
+const APPROVE_THRESHOLD = 5;  // net upvotes needed to approve
+const REJECT_THRESHOLD = -3;  // net score to auto-reject
+const ADMIN_MODE = new URLSearchParams(window.location.search).get('admin') === 'true';
 
 // ── GENRE COLORS ──
 const G = {
@@ -1199,7 +1276,8 @@ function render() {
   const dotsG = mkEl('g', {id:'dots-g'});
   BANDS.forEach((band, i) => {
     const col = G[band.genres[0]]?.c || '#888888';
-    const dotR = Math.max(4.5, Math.min(7, VW * 0.006));
+    const baseDotR = Math.max(4.5, Math.min(7, VW * 0.006));
+    const dotR = band.communityPick ? baseDotR + 1.8 : baseDotR;
 
     const g = mkEl('g', {
       class: 'band-g',
@@ -1222,6 +1300,7 @@ function render() {
       fill: col + '3a',
       stroke: col,
       'stroke-width': '1.8',
+      'stroke-dasharray': band.communityPick ? '3 2' : '',
     }));
 
     g.appendChild(inner);
@@ -1261,7 +1340,7 @@ const tip = document.getElementById('tip');
 function onHover(i, e) {
   const band = BANDS[i];
   const col = G[band.genres[0]]?.c || '#d4a44a';
-  tip.textContent = band.name;
+  tip.textContent = band.communityPick ? ('⭐ ' + band.name + ' · Community Pick') : band.name;
   tip.style.color = col;
   tip.style.borderColor = col + '66';
   moveTip(e);
@@ -1553,6 +1632,7 @@ function switchTab(tab) {
   if (tab !== 'map' && sbOpen) toggleSidebar();
   // Mute Spotify whenever we leave the Map tab
   if (tab !== 'map') { const se = document.getElementById('spotifyEmbed'); if (se) se.src = ''; }
+  if (tab === 'map') updateApprovedBanner();
   if (tab === 'feed') initFeed();
 }
 
@@ -1577,6 +1657,7 @@ function renderFeed() {
   const items = [
     ...allComments.map(c    => ({...c, _type:'comment'})),
     ...allSuggestions.map(s => ({...s, _type:'suggestion'})),
+    ...allMilestones.map(m  => ({...m, _type:'milestone'})),
   ].sort((a, b) => b.time - a.time);
 
   if (countEl) countEl.textContent = items.length;
@@ -1588,7 +1669,7 @@ function renderFeed() {
 
   el.innerHTML = items.map(item => {
     const isComment = item._type === 'comment';
-    const who    = isComment ? item.author : item.by;
+    const who    = isComment ? item.author : (item._type === 'milestone' ? 'Community' : item.by);
     const letter = (who || '?')[0].toUpperCase();
     const name   = esc(who || 'Anonymous');
     const ts     = timeAgo(item.time);
@@ -1603,6 +1684,8 @@ function renderFeed() {
                onclick="event.stopPropagation();switchTab('map');selectBand(${bandIdx})"
              >${esc(item.band)}</div>`
           : '');
+    } else if (item._type === 'milestone') {
+      bodyHTML = `<div class="feed-text">${esc(item.message || '')}</div>`;
     } else {
       const isDiscovery = !!(item.source && item.source.startsWith('via '));
       bodyHTML =
@@ -1613,9 +1696,10 @@ function renderFeed() {
     }
 
     const isDiscovery = item._type === 'suggestion' && !!(item.source && item.source.startsWith('via '));
-    const typeLabel   = isDiscovery ? 'discovery' : item._type;
+    const typeLabel   = item._type === 'milestone' ? 'milestone' : (isDiscovery ? 'discovery' : item._type);
+    const cardClass   = item._type === 'milestone' ? 'feed-card milestone' : 'feed-card';
 
-    return `<div class="feed-card">
+    return `<div class="${cardClass}">
       <div class="feed-avatar">${letter}</div>
       <div class="feed-body">
         <div class="feed-meta">
@@ -1810,6 +1894,8 @@ function suggestRelated(bandName, parentBand, pillEl) {
     const byName = (localStorage.getItem('buttrock-username') || '').trim() || 'Anonymous';
     const suggestionsRef = firebase.database().ref('suggestions');
     const newRef = suggestionsRef.push();
+    const suggestedX = parentData ? parentData.x : 50;
+    const suggestedY = parentData ? parentData.y : 70;
     const suggestionObject = {
       id: newRef.key,
       band: bandName,
@@ -1818,6 +1904,9 @@ function suggestRelated(bandName, parentBand, pillEl) {
       upvotes: 1,
       downvotes: 0,
       votes: 1,
+      status: 'pending',
+      suggestedX,
+      suggestedY,
       time: Date.now(),
       source: `via ${parentBand}`,
     };
@@ -1896,13 +1985,17 @@ function populateBandSelect() {
 // FIREBASE HELPERS
 // Database paths:
 //   /comments    → {id, author, text, band, time, likes, dislikes}
-//   /suggestions → {id, band, genre, by, votes, time}
+//   /suggestions → {id, band, genre, by, upvotes, downvotes, votes, status, time, source}
+//   /milestones  → {id, kind, suggestionId, band, message, time}
 // ─────────────────────────────────────────────
 
 // Global in-memory caches — populated by real-time listeners.
 // Used by the Community tab, Activity Feed, and detail panel comments.
 let allComments    = [];
 let allSuggestions = [];
+let allMilestones  = [];
+let suggestionFilter = 'all';
+let dismissedApprovedSuggestionId = null;
 let commentSort = 'newest';
 let commentVotes = {};
 try {
@@ -1942,8 +2035,153 @@ function saveComment(comment) {
   return ref.set({ ...comment, likes: 0, dislikes: 0, id: ref.key });
 }
 
+function getSuggestionScore(suggestion) {
+  const upvotes = Math.max(0, Number(suggestion.upvotes) || Number(suggestion.votes) || 0);
+  const downvotes = Math.max(0, Number(suggestion.downvotes) || 0);
+  return upvotes - downvotes;
+}
+
+function getSuggestionStatus(suggestion) {
+  const score = getSuggestionScore(suggestion);
+  if (suggestion.status === 'added') return 'added';
+  if (score >= APPROVE_THRESHOLD) return 'approved';
+  if (score <= REJECT_THRESHOLD) return 'rejected';
+  return 'pending';
+}
+
+function emitMilestone(kind, suggestion) {
+  if (!fbReady || !suggestion) return;
+  const ref = firebase.database().ref('milestones').push();
+  const message = kind === 'approved'
+    ? `🎸 ${suggestion.band} just hit the approval threshold!`
+    : `⭐ ${suggestion.band} was added to the map by the community!`;
+  ref.set({
+    id: ref.key,
+    kind,
+    suggestionId: suggestion.id,
+    band: suggestion.band,
+    message,
+    time: Date.now(),
+  });
+}
+
+function maybeEmitApprovalMilestone(suggestionId) {
+  const ref = firebase.database().ref(`suggestions/${suggestionId}`);
+  return ref.transaction(suggestion => {
+    if (!suggestion) return suggestion;
+    if (suggestion.status !== 'approved' || suggestion.approvalEventLogged) return;
+    return { ...suggestion, approvalEventLogged: true };
+  }).then(result => {
+    if (!result.committed || !result.snapshot.exists()) return;
+    const suggestion = { ...result.snapshot.val(), id: suggestionId };
+    emitMilestone('approved', suggestion);
+  });
+}
+
+function maybeEmitAddedMilestone(suggestionId) {
+  const ref = firebase.database().ref(`suggestions/${suggestionId}`);
+  return ref.transaction(suggestion => {
+    if (!suggestion) return suggestion;
+    if (suggestion.status !== 'added' || suggestion.addedEventLogged) return;
+    return { ...suggestion, addedEventLogged: true };
+  }).then(result => {
+    if (!result.committed || !result.snapshot.exists()) return;
+    const suggestion = { ...result.snapshot.val(), id: suggestionId };
+    emitMilestone('added', suggestion);
+  });
+}
+
+function loadMilestones() {
+  firebase.database().ref('milestones').on('value', snap => {
+    allMilestones = [];
+    snap.forEach(child => {
+      const item = child.val() || {};
+      allMilestones.push({ ...item, id: child.key, _type: 'milestone' });
+    });
+    allMilestones.sort((a, b) => b.time - a.time);
+    renderFeed();
+  });
+}
+
+function getApprovedSuggestionForBanner() {
+  return allSuggestions.find(s => s.status === 'approved' && s.id !== dismissedApprovedSuggestionId) || null;
+}
+
+function updateApprovedBanner() {
+  const banner = document.getElementById('approvedBanner');
+  const text = document.getElementById('approvedBannerText');
+  if (!banner || !text) return;
+  const approved = getApprovedSuggestionForBanner();
+  if (!approved) {
+    banner.style.display = 'none';
+    return;
+  }
+  const heavy = Math.round(Number(approved.suggestedX) || 50);
+  const butt = Math.round(Number(approved.suggestedY) || 70);
+  text.textContent = `🎸 ${approved.band} has been approved by the community! Suggested placement: ${heavy}% heavy, ${butt}% butt rock`;
+  banner.dataset.suggestionId = approved.id;
+  banner.style.display = 'flex';
+}
+
+function dismissApprovedBanner() {
+  const approved = getApprovedSuggestionForBanner();
+  dismissedApprovedSuggestionId = approved ? approved.id : null;
+  updateApprovedBanner();
+}
+
+function addSuggestionToMap(suggestionId) {
+  const suggestion = allSuggestions.find(s => s.id === suggestionId);
+  if (!suggestion) return;
+
+  const name = String(suggestion.band || '').trim();
+  if (!name) return;
+  const genre = (suggestion.genre || 'Butt Rock').trim();
+  const x = Math.max(0, Math.min(100, Number(suggestion.suggestedX) || 50));
+  const y = Math.max(0, Math.min(100, Number(suggestion.suggestedY) || 70));
+  const exists = BANDS.some(b => b.name.toLowerCase() === name.toLowerCase());
+
+  if (!exists) {
+    const newBand = {
+      name,
+      x,
+      y,
+      genres: [genre],
+      art: Math.max(20, Math.min(85, Math.round((x + (100 - y)) / 2))),
+      desc: '⭐ Community Pick — promoted from suggestions.',
+      communityPick: true,
+    };
+    newBand._tier = getTier(newBand);
+    BANDS.push(newBand);
+    const sel = document.getElementById('cmBand');
+    if (sel && !Array.from(sel.options).some(o => o.value === name)) {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    }
+    render();
+    buildSbStats();
+    renderSbList();
+  }
+
+  firebase.database().ref(`suggestions/${suggestionId}`).update({ status: 'added' })
+    .then(() => maybeEmitAddedMilestone(suggestionId))
+    .catch(err => console.warn('Failed to mark suggestion added:', err.message));
+}
+
+function addApprovedFromBanner() {
+  const banner = document.getElementById('approvedBanner');
+  if (!banner || !banner.dataset.suggestionId) return;
+  addSuggestionToMap(banner.dataset.suggestionId);
+}
+
+function resetSuggestionStatus(suggestionId) {
+  firebase.database().ref(`suggestions/${suggestionId}`).update({ status: 'pending' })
+    .catch(err => console.warn('Failed to reset suggestion status:', err.message));
+}
+
 // ── loadSuggestions() ──
-// Real-time listener; populates allSuggestions sorted by votes descending,
+// Real-time listener; populates allSuggestions sorted by score/status,
 // then refreshes every surface that displays suggestion data.
 function loadSuggestions() {
   firebase.database().ref('suggestions').on('value', snap => {
@@ -1953,9 +2191,24 @@ function loadSuggestions() {
       const upvotes = Math.max(0, Number(raw.upvotes) || Number(raw.votes) || 0);
       const downvotes = Math.max(0, Number(raw.downvotes) || 0);
       const votes = upvotes - downvotes;
-      allSuggestions.push({ ...raw, id: child.key, upvotes, downvotes, votes });
+      const normalized = { ...raw, id: child.key, upvotes, downvotes, votes };
+      const status = getSuggestionStatus(normalized);
+      allSuggestions.push({ ...normalized, status });
+      if (raw.status !== status) {
+        child.ref.update({ status });
+      }
     });
-    allSuggestions.sort((a, b) => getSuggestionScore(b) - getSuggestionScore(a));
+    allSuggestions.sort((a, b) => {
+      const pa = a.status === 'approved' ? 0 : 1;
+      const pb = b.status === 'approved' ? 0 : 1;
+      if (pa !== pb) return pa - pb;
+      const sa = getSuggestionScore(a);
+      const sb = getSuggestionScore(b);
+      if (sa !== sb) return sb - sa;
+      return b.time - a.time;
+    });
+    updateApprovedBanner();
+    allSuggestions.filter(s => s.status === 'approved').forEach(s => maybeEmitApprovalMilestone(s.id));
     renderSuggestions(allSuggestions);
     renderFeed();
   });
@@ -1968,7 +2221,9 @@ function saveSuggestion(suggestion) {
   const ref = firebase.database().ref('suggestions').push();
   const upvotes = Math.max(0, Number(suggestion.upvotes) || Number(suggestion.votes) || 0);
   const downvotes = Math.max(0, Number(suggestion.downvotes) || 0);
-  ref.set({ ...suggestion, upvotes, downvotes, votes: upvotes - downvotes, id: ref.key });
+  const payload = { ...suggestion, upvotes, downvotes, votes: upvotes - downvotes, id: ref.key };
+  payload.status = getSuggestionStatus(payload);
+  ref.set(payload);
   return ref;
 }
 
@@ -1979,14 +2234,15 @@ function updateVote(suggestionId, newVoteCount) {
     if (!suggestion) return suggestion;
     const downvotes = Math.max(0, Number(suggestion.downvotes) || 0);
     const upvotes = Math.max(0, newVoteCount + downvotes);
-    return { ...suggestion, upvotes, downvotes, votes: upvotes - downvotes };
+    const next = { ...suggestion, upvotes, downvotes, votes: upvotes - downvotes };
+    next.status = getSuggestionStatus(next);
+    return next;
+  }).then(result => {
+    if (!result.committed || !result.snapshot.exists()) return result;
+    const nextStatus = result.snapshot.val().status;
+    if (nextStatus === 'approved') maybeEmitApprovalMilestone(suggestionId);
+    return result;
   });
-}
-
-function getSuggestionScore(suggestion) {
-  const upvotes = Math.max(0, Number(suggestion.upvotes) || Number(suggestion.votes) || 0);
-  const downvotes = Math.max(0, Number(suggestion.downvotes) || 0);
-  return upvotes - downvotes;
 }
 
 // ─────────────────────────────────────────────
@@ -2123,6 +2379,7 @@ function initSuggestions() {
     return;
   }
   loadSuggestions();
+  loadMilestones();
 }
 
 function renderSuggestions(list) {
@@ -2132,20 +2389,63 @@ function renderSuggestions(list) {
     el.innerHTML = '<div class="comm-empty">No suggestions yet. Know a band that belongs on the map?</div>';
     return;
   }
-  el.innerHTML = list.map(s => {
+  let filtered = list.slice();
+  if (suggestionFilter !== 'all') {
+    filtered = filtered.filter(s => s.status === suggestionFilter);
+  }
+  if (!filtered.length) {
+    el.innerHTML = '<div class="comm-empty">No suggestions in this filter yet.</div>';
+    return;
+  }
+  const approved = filtered.filter(s => s.status === 'approved');
+  const others = filtered.filter(s => s.status !== 'approved');
+  const sorted = approved.concat(others);
+  const rows = [];
+  sorted.forEach((s, i) => {
+    if (i === 0 && approved.length && suggestionFilter !== 'rejected' && suggestionFilter !== 'pending') {
+      rows.push('<div class="sugg-list-divider">— Approved for the Map —</div>');
+    } else if (i === approved.length && approved.length && others.length && suggestionFilter === 'all') {
+      rows.push('<div class="sugg-list-divider">— Community Queue —</div>');
+    }
     const voted = myVotes.has(s.id);
     const score = getSuggestionScore(s);
-    return `<div class="suggestion">
-      <button class="vote-btn${voted ? ' voted' : ''}" onclick="toggleVote('${s.id}',${score},${voted})">
-        <span class="vote-arr">▲</span>
-        <span class="vote-n">${score}</span>
-      </button>
-      <div class="sugg-info">
-        <div class="sugg-name">${esc(s.band)}</div>
-        <div class="sugg-by">by ${esc(s.by)}${s.genre ? ' · <span class="sugg-genre">' + esc(s.genre) + '</span>' : ''}${s.source ? ' · <span class="sugg-source">' + esc(s.source) + '</span>' : ''}</div>
-      </div>
-    </div>`;
-  }).join('');
+    const statusLabel = s.status === 'approved'
+      ? '✓ APPROVED — READY TO ADD'
+      : s.status === 'rejected'
+        ? '✗ NOT ENOUGH SUPPORT'
+        : s.status === 'added'
+          ? '✓ ON THE MAP'
+          : 'PENDING';
+    const adminControls = ADMIN_MODE && s.status === 'approved'
+      ? `<div class="sugg-admin">
+           <button class="sugg-admin-btn" onclick="addSuggestionToMap('${s.id}')">Add to Map</button>
+           <button class="sugg-admin-btn reset" onclick="resetSuggestionStatus('${s.id}')">Reset</button>
+         </div>`
+      : '';
+    rows.push(
+      `<div class="suggestion">
+         <button class="vote-btn${voted ? ' voted' : ''}" onclick="toggleVote('${s.id}',${score},${voted})">
+           <span class="vote-arr">▲</span>
+           <span class="vote-n">${score}</span>
+         </button>
+         <div class="sugg-info">
+           <div class="sugg-name">${esc(s.band)}<span class="sugg-status ${s.status}">${statusLabel}</span></div>
+           <div class="sugg-by">by ${esc(s.by)}${s.genre ? ' · <span class="sugg-genre">' + esc(s.genre) + '</span>' : ''}${s.source ? ' · <span class="sugg-source">' + esc(s.source) + '</span>' : ''}</div>
+           ${adminControls}
+         </div>
+       </div>`
+    );
+  });
+  el.innerHTML = rows.join('');
+}
+
+function setSuggestionFilter(mode) {
+  suggestionFilter = mode;
+  document.getElementById('suggFilterAll').classList.toggle('active', mode === 'all');
+  document.getElementById('suggFilterApproved').classList.toggle('active', mode === 'approved');
+  document.getElementById('suggFilterPending').classList.toggle('active', mode === 'pending');
+  document.getElementById('suggFilterRejected').classList.toggle('active', mode === 'rejected');
+  renderSuggestions(allSuggestions);
 }
 
 function submitSuggestion() {
@@ -2171,7 +2471,18 @@ function submitSuggestion() {
   if (!band) { errEl.textContent = 'Please enter the band name.'; errEl.classList.add('show'); return; }
   errEl.classList.remove('show');
 
-  const ref = saveSuggestion({ band, genre, by, upvotes: 1, downvotes: 0, votes: 1, time: Date.now() });
+  const ref = saveSuggestion({
+    band,
+    genre,
+    by,
+    upvotes: 1,
+    downvotes: 0,
+    votes: 1,
+    status: 'pending',
+    suggestedX: 50,
+    suggestedY: 70,
+    time: Date.now()
+  });
   myVotes.add(ref.key);
   saveMyVotes();
   bandEl.value  = '';
