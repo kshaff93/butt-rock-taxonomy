@@ -703,6 +703,115 @@ header .sub{
 }
 .feed-band-pill:hover{background:#7a44aa30;}
 
+.thread-toggle{
+  margin-top:8px;background:transparent;border:1px solid #2a2218;color:#776655;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.68rem;letter-spacing:1px;
+  text-transform:uppercase;padding:3px 9px;border-radius:10px;cursor:pointer;transition:all 0.15s;
+}
+.thread-toggle:hover{color:var(--gold);border-color:var(--gold-dim);background:#d4a44a10;}
+.thread-panel{
+  margin-top:8px;background:#1e1c18;border-left:2px solid #333;
+  padding:0 10px 0 16px;max-height:0;overflow:hidden;
+  transition:max-height 0.28s ease,padding-top 0.2s ease,padding-bottom 0.2s ease,opacity 0.2s ease;
+  opacity:0;
+}
+.thread-panel.open{max-height:380px;padding-top:9px;padding-bottom:9px;opacity:1;}
+.thread-list{display:flex;flex-direction:column;gap:7px;max-height:220px;overflow-y:auto;padding-right:4px;}
+.thread-empty{font-size:0.68rem;color:#776655;font-family:'Special Elite',cursive;}
+.thread-reply{display:flex;gap:7px;align-items:flex-start;}
+.thread-avatar{
+  width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:0.72rem;flex-shrink:0;
+}
+.thread-main{flex:1;min-width:0;}
+.thread-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px;}
+.thread-author{font-size:0.64rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#d6c4a2;}
+.thread-time{font-size:0.54rem;color:#665544;letter-spacing:1px;}
+.thread-text{font-size:0.72rem;color:#b8a68a;line-height:1.4;font-family:'Special Elite',cursive;}
+.thread-gif{margin-top:5px;max-width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid #3a2f1a;}
+.thread-votes{display:flex;gap:5px;margin-top:4px;}
+.thread-vote{
+  background:transparent;border:1px solid #33281c;color:#776655;
+  font-size:0.62rem;padding:1px 6px;border-radius:8px;cursor:pointer;transition:all 0.15s;
+}
+.thread-vote:hover{color:var(--gold);border-color:var(--gold-dim);}
+.thread-vote.up.active{color:var(--gold);border-color:var(--gold-dim);background:#d4a44a1a;}
+.thread-vote.down.active{color:#b56a6a;border-color:#6a3232;background:#cc444418;}
+.thread-form{
+  margin-top:8px;padding-top:7px;border-top:1px solid #2e271f;
+  display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+}
+.thread-in{
+  background:#15120f;border:1px solid #2a2218;color:var(--text);
+  font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;padding:4px 7px;border-radius:3px;
+}
+.thread-in.name{width:118px;}
+.thread-in.text{flex:1;min-width:120px;}
+.thread-btn{
+  background:transparent;border:1px solid #2a2218;color:#776655;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;padding:3px 8px;border-radius:3px;
+  cursor:pointer;transition:all 0.15s;
+}
+.thread-btn:hover{border-color:var(--gold-dim);color:var(--gold);}
+.thread-gif-chip{
+  font-size:0.58rem;color:#44aaaa;background:#44aaaa18;border:1px solid #44aaaa44;
+  border-radius:8px;padding:1px 6px;
+}
+.gif-preview{
+  margin-top:6px;display:inline-flex;align-items:center;gap:6px;
+  background:#15120f;border:1px solid #2a2218;border-radius:6px;padding:5px;
+}
+.gif-preview img{
+  width:90px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #3a2f1a;
+}
+.gif-remove{
+  background:transparent;border:1px solid #2a2218;color:#887755;
+  border-radius:50%;width:20px;height:20px;cursor:pointer;line-height:1;
+}
+.gif-remove:hover{border-color:#7a3a3a;color:#c87f7f;}
+.inline-gif{
+  margin-top:6px;max-width:100%;max-height:200px;object-fit:cover;
+  border-radius:6px;border:1px solid #3a2f1a;display:block;
+}
+
+#gifPicker{
+  position:fixed;width:320px;height:400px;background:#1a1714;border:1px solid #333;
+  border-radius:8px;z-index:9500;display:none;box-shadow:0 10px 30px rgba(0,0,0,0.55);
+  overflow:hidden;
+}
+.gifp-head{
+  display:flex;align-items:center;justify-content:space-between;padding:8px 10px;
+  border-bottom:1px solid #2e271f;
+}
+.gifp-title{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:0.86rem;color:var(--gold);}
+.gifp-close{background:none;border:none;color:#776655;cursor:pointer;font-size:0.9rem;}
+.gifp-close:hover{color:var(--gold);}
+.gifp-search-wrap{padding:8px 10px;border-bottom:1px solid #2a2218;}
+.gifp-search{
+  width:100%;background:#11100d;border:1px solid #2a2218;color:var(--text);
+  font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;padding:5px 7px;border-radius:4px;
+}
+.gifp-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.gifp-tag{
+  background:#221b14;border:1px solid #33281c;color:#887755;border-radius:10px;
+  font-size:0.58rem;padding:2px 7px;cursor:pointer;
+}
+.gifp-tag:hover{color:var(--gold);border-color:var(--gold-dim);}
+.gifp-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 10px;
+  height:252px;overflow-y:auto;
+}
+.gifp-item{
+  width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:6px;border:1px solid #2f271e;
+  cursor:pointer;transition:transform 0.14s;
+}
+.gifp-item:hover{transform:scale(1.04);}
+.gifp-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.gifp-status{padding:12px 10px;color:#887755;font-size:0.72rem;}
+.gifp-foot{
+  position:absolute;right:10px;bottom:6px;font-size:0.54rem;color:#665544;letter-spacing:0.8px;
+}
+
 /* ── detail panel: per-band comments ── */
 #dpComments{margin-top:10px;padding-top:8px;border-top:1px solid #1e1a15;}
 .dp-com-title{
@@ -852,8 +961,10 @@ header .sub{
       <input class="comm-in" id="sgName"  type="text" placeholder="Your name *"       maxlength="30">
       <input class="comm-in" id="sgBand"  type="text" placeholder="Band name *"        maxlength="60">
       <input class="comm-in" id="sgGenre" type="text" placeholder="Genre (optional)"   maxlength="30" style="flex:0 0 120px;">
+      <button class="thread-btn" type="button" id="sgGifBtn" onclick="openGifPicker('suggestion', this)">🎞️ GIF</button>
       <button class="comm-btn" onclick="submitSuggestion()">Suggest</button>
       <div class="comm-err" id="sgErr" style="flex-basis:100%;margin-top:0;"></div>
+      <div id="sgGifPreview" style="flex-basis:100%;display:none;"></div>
     </div>
     <div class="sugg-filters">
       <button class="sugg-filter-btn active" id="suggFilterAll" onclick="setSuggestionFilter('all')">All</button>
@@ -875,9 +986,11 @@ header .sub{
       <div class="comm-err" id="cmNameErr">Please enter your name to comment.</div>
       <textarea class="comm-ta" id="cmText" maxlength="500"
         placeholder="Share your hot take on a band's placement, argue about genre boundaries, or just yell about butt rock…"></textarea>
+      <div id="cmGifPreview" style="display:none;"></div>
       <div class="comm-frow">
         <select class="comm-sel" id="cmBand"><option value="">Tag a band (optional)</option></select>
         <span class="comm-chars" id="cmChars">0/500</span>
+        <button class="thread-btn" type="button" id="cmGifBtn" onclick="openGifPicker('comment', this)">🎞️ GIF</button>
         <button class="comm-btn" onclick="submitComment()">Post</button>
       </div>
     </div>
@@ -935,6 +1048,7 @@ try {
 const APPROVE_THRESHOLD = 5;  // net upvotes needed to approve
 const REJECT_THRESHOLD = -3;  // net score to auto-reject
 const ADMIN_MODE = new URLSearchParams(window.location.search).get('admin') === 'true';
+const GIPHY_KEY = 'blRbhIKXnRvZAo1qwRkZsHI3RWDuoecS';
 
 // ── GENRE COLORS ──
 const G = {
@@ -1679,6 +1793,7 @@ function renderFeed() {
       const bandIdx = item.band ? BANDS.findIndex(b => b.name === item.band) : -1;
       bodyHTML =
         `<div class="feed-text">${esc(item.text)}</div>` +
+        (item.gif ? `<img class="inline-gif" src="${esc(item.gif)}" alt="Comment GIF" loading="lazy">` : '') +
         (item.band && bandIdx > -1
           ? `<div class="feed-band-pill"
                onclick="event.stopPropagation();switchTab('map');selectBand(${bandIdx})"
@@ -1692,12 +1807,18 @@ function renderFeed() {
         `<div class="feed-sugg">${isDiscovery ? '🧭 ' : ''}suggested adding <strong>${esc(item.band)}</strong>` +
         (item.source ? ` <span class="sugg-source">${esc(item.source)}</span>` : '') +
         (item.genre && !item.source ? ` &middot; <span class="sugg-genre">${esc(item.genre)}</span>` : '') +
-        `<span class="feed-votes">▲ ${getSuggestionScore(item)}</span></div>`;
+        `<span class="feed-votes">▲ ${getSuggestionScore(item)}</span></div>` +
+        (item.gif ? `<img class="inline-gif" src="${esc(item.gif)}" alt="Suggestion GIF" loading="lazy">` : '');
     }
 
     const isDiscovery = item._type === 'suggestion' && !!(item.source && item.source.startsWith('via '));
     const typeLabel   = item._type === 'milestone' ? 'milestone' : (isDiscovery ? 'discovery' : item._type);
     const cardClass   = item._type === 'milestone' ? 'feed-card milestone' : 'feed-card';
+    const threadHTML = item._type === 'comment'
+      ? renderThreadBlock('comment', item.id)
+      : item._type === 'suggestion'
+        ? renderThreadBlock('suggestion', item.id)
+        : '';
 
     return `<div class="${cardClass}">
       <div class="feed-avatar">${letter}</div>
@@ -1708,6 +1829,7 @@ function renderFeed() {
           <span class="feed-type ${typeLabel}">${typeLabel}</span>
         </div>
         ${bodyHTML}
+        ${threadHTML}
       </div>
     </div>`;
   }).join('');
@@ -1738,6 +1860,7 @@ function renderDpComments() {
          <span class="dp-cm-time">${timeAgo(c.time)}</span>
        </div>
        <div class="dp-cm-text">${esc(c.text)}</div>
+       ${c.gif ? `<img class="inline-gif" src="${esc(c.gif)}" alt="Comment GIF" loading="lazy">` : ''}
      </div>`
   ).join('');
 }
@@ -1970,6 +2093,371 @@ function fbOfflineBanner() {
   return '<div class="fb-offline">⚠ Firebase not configured — replace placeholder values in firebaseConfig to enable community features.</div>';
 }
 
+function getGifPickerEl() {
+  return document.getElementById('gifPicker');
+}
+
+function closeGifPicker() {
+  const picker = getGifPickerEl();
+  if (picker) picker.style.display = 'none';
+  gifPickerState = { context: null, anchorEl: null };
+}
+
+function positionGifPicker(anchorEl) {
+  const picker = getGifPickerEl();
+  if (!picker || !anchorEl) return;
+  const rect = anchorEl.getBoundingClientRect();
+  const pickerW = 320;
+  const pickerH = 400;
+  let left = rect.left + (rect.width / 2) - (pickerW / 2);
+  let top = rect.top - pickerH - 8;
+  if (left < 10) left = 10;
+  if (left + pickerW > window.innerWidth - 10) left = window.innerWidth - pickerW - 10;
+  if (top < 10) top = rect.bottom + 8;
+  if (top + pickerH > window.innerHeight - 10) top = Math.max(10, window.innerHeight - pickerH - 10);
+  picker.style.left = `${left}px`;
+  picker.style.top = `${top}px`;
+}
+
+function getGifFromResult(result) {
+  const imgs = result && result.images ? result.images : {};
+  const tiny = (imgs.fixed_width_small && imgs.fixed_width_small.url) || '';
+  const full = (imgs.fixed_width && imgs.fixed_width.url) || tiny;
+  if (!tiny || !full) return null;
+  return { thumb: tiny, full };
+}
+
+function renderGifPickerResults(results) {
+  const picker = getGifPickerEl();
+  if (!picker) return;
+  const grid = picker.querySelector('.gifp-grid');
+  if (!grid) return;
+  if (!results.length) {
+    grid.innerHTML = '<div class="gifp-status" style="grid-column:1 / span 2;">No GIFs found.</div>';
+    return;
+  }
+  grid.innerHTML = results.map((g, idx) =>
+    `<button class="gifp-item" data-gif-idx="${idx}" type="button"><img src="${esc(g.thumb)}" alt="GIF" loading="lazy"></button>`
+  ).join('');
+  grid.querySelectorAll('.gifp-item').forEach(btn => {
+    const idx = Number(btn.dataset.gifIdx);
+    btn.addEventListener('click', () => {
+      selectGifForContext(results[idx].full);
+      closeGifPicker();
+    });
+  });
+}
+
+function setGifPickerStatus(msg) {
+  const picker = getGifPickerEl();
+  if (!picker) return;
+  const grid = picker.querySelector('.gifp-grid');
+  if (!grid) return;
+  grid.innerHTML = `<div class="gifp-status" style="grid-column:1 / span 2;">${esc(msg)}</div>`;
+}
+
+async function fetchGiphy(query) {
+  const base = query
+    ? `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(query)}&limit=20&rating=g`
+    : `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=20&rating=g`;
+  const res = await fetch(base);
+  if (!res.ok) throw new Error('Giphy unavailable');
+  const data = await res.json();
+  const items = Array.isArray(data.data) ? data.data : [];
+  return items.map(getGifFromResult).filter(Boolean);
+}
+
+function searchGifPicker(query) {
+  clearTimeout(gifPickerDebounce);
+  gifPickerDebounce = setTimeout(async () => {
+    try {
+      setGifPickerStatus('Loading GIFs...');
+      const results = await fetchGiphy(query.trim());
+      renderGifPickerResults(results);
+    } catch (e) {
+      closeGifPicker();
+      showToast('GIF search unavailable — try again later');
+    }
+  }, 400);
+}
+
+function initGifPicker() {
+  if (getGifPickerEl()) return;
+  const picker = document.createElement('div');
+  picker.id = 'gifPicker';
+  picker.innerHTML = `<div class="gifp-head">
+      <div class="gifp-title">Pick a GIF</div>
+      <button class="gifp-close" type="button" id="gifpClose">✕</button>
+    </div>
+    <div class="gifp-search-wrap">
+      <input class="gifp-search" id="gifpSearch" type="text" placeholder="Search GIFs...">
+      <div class="gifp-tags">
+        <button class="gifp-tag" type="button" data-q="guitar">🎸 Guitar</button>
+        <button class="gifp-tag" type="button" data-q="metal">🤘 Metal</button>
+        <button class="gifp-tag" type="button" data-q="rage">😤 Rage</button>
+        <button class="gifp-tag" type="button" data-q="hype">🙌 Hype</button>
+        <button class="gifp-tag" type="button" data-q="rip">💀 RIP</button>
+        <button class="gifp-tag" type="button" data-q="fire">🔥 Fire</button>
+        <button class="gifp-tag" type="button" data-q="lol">😂 LOL</button>
+      </div>
+    </div>
+    <div class="gifp-grid"></div>
+    <div class="gifp-foot">Powered by GIPHY</div>`;
+  document.body.appendChild(picker);
+  picker.querySelector('#gifpClose').addEventListener('click', closeGifPicker);
+  picker.querySelector('#gifpSearch').addEventListener('input', e => searchGifPicker(e.target.value));
+  picker.querySelectorAll('.gifp-tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.dataset.q || '';
+      picker.querySelector('#gifpSearch').value = q;
+      searchGifPicker(q);
+    });
+  });
+  document.addEventListener('click', e => {
+    const p = getGifPickerEl();
+    if (!p || p.style.display !== 'block') return;
+    if (p.contains(e.target)) return;
+    if (gifPickerState.anchorEl && gifPickerState.anchorEl.contains(e.target)) return;
+    closeGifPicker();
+  });
+  window.addEventListener('resize', () => {
+    if (gifPickerState.anchorEl) positionGifPicker(gifPickerState.anchorEl);
+  });
+}
+
+function openGifPicker(context, anchorEl) {
+  initGifPicker();
+  closeGifPicker();
+  gifPickerState = { context, anchorEl };
+  const picker = getGifPickerEl();
+  if (!picker) return;
+  picker.style.display = 'block';
+  positionGifPicker(anchorEl);
+  const searchInput = picker.querySelector('#gifpSearch');
+  if (searchInput) searchInput.value = '';
+  searchGifPicker('');
+}
+
+function renderInlineGifPreview(containerId, gifUrl, removeHandler) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!gifUrl) {
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+  el.style.display = '';
+  el.innerHTML = `<div class="gif-preview"><img src="${esc(gifUrl)}" alt="Selected GIF" loading="lazy"><button class="gif-remove" type="button" onclick="${removeHandler}">✕</button></div>`;
+}
+
+function selectGifForContext(gifUrl) {
+  const ctx = gifPickerState.context || '';
+  if (ctx === 'comment') {
+    commentGif = gifUrl;
+    renderInlineGifPreview('cmGifPreview', commentGif, 'clearCommentGif()');
+    return;
+  }
+  if (ctx === 'suggestion') {
+    suggestionGif = gifUrl;
+    renderInlineGifPreview('sgGifPreview', suggestionGif, 'clearSuggestionGif()');
+    return;
+  }
+  if (ctx.startsWith('reply:')) {
+    const key = ctx.slice('reply:'.length);
+    if (!replyDrafts[key]) replyDrafts[key] = { name: getKnownUsername(), text: '', gif: null };
+    replyDrafts[key].gif = gifUrl;
+    renderFeed();
+    renderComments(allComments);
+  }
+}
+
+function clearCommentGif() {
+  commentGif = null;
+  renderInlineGifPreview('cmGifPreview', null, 'clearCommentGif()');
+}
+
+function clearSuggestionGif() {
+  suggestionGif = null;
+  renderInlineGifPreview('sgGifPreview', null, 'clearSuggestionGif()');
+}
+
+function clearReplyGif(key) {
+  if (!replyDrafts[key]) return;
+  replyDrafts[key].gif = null;
+  renderFeed();
+  renderComments(allComments);
+}
+
+function getReplyKey(itemType, itemId) {
+  return itemType + ':' + itemId;
+}
+
+function getReplyPath(itemType, itemId) {
+  return itemType === 'comment'
+    ? `commentReplies/${itemId}`
+    : `suggestionReplies/${itemId}`;
+}
+
+function getAuthorColor(name) {
+  const palette = Object.values(G).map(v => v.c);
+  if (!palette.length) return '#888';
+  let hash = 0;
+  const text = String(name || '');
+  for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash) + text.charCodeAt(i);
+  return palette[Math.abs(hash) % palette.length];
+}
+
+function ensureReplyListener(itemType, itemId) {
+  const key = getReplyKey(itemType, itemId);
+  if (replyListeners[key]) return;
+  replyListeners[key] = true;
+  firebase.database().ref(getReplyPath(itemType, itemId)).on('value', snap => {
+    const rows = [];
+    snap.forEach(child => {
+      const raw = child.val() || {};
+      rows.push({
+        ...raw,
+        id: child.key,
+        likes: Math.max(0, Number(raw.likes) || 0),
+        dislikes: Math.max(0, Number(raw.dislikes) || 0),
+      });
+    });
+    rows.sort((a, b) => a.time - b.time);
+    replyData[key] = rows;
+    renderFeed();
+    renderComments(allComments);
+  });
+}
+
+function getReplies(itemType, itemId) {
+  return replyData[getReplyKey(itemType, itemId)] || [];
+}
+
+function getReplyVoteKey(itemType, itemId, replyId) {
+  return `${itemType}:${itemId}:${replyId}`;
+}
+
+function toggleThread(itemType, itemId) {
+  const key = getReplyKey(itemType, itemId);
+  openThreadKey = openThreadKey === key ? null : key;
+  renderFeed();
+  renderComments(allComments);
+}
+
+function handleReplyDraftInput(itemType, itemId, field, value) {
+  const key = getReplyKey(itemType, itemId);
+  if (!replyDrafts[key]) replyDrafts[key] = { name: getKnownUsername(), text: '', gif: null };
+  replyDrafts[key][field] = value;
+}
+
+function openGifPickerForReply(itemType, itemId) {
+  const key = getReplyKey(itemType, itemId);
+  const anchor = document.getElementById(`replyGifBtn-${key}`);
+  openGifPicker(`reply:${key}`, anchor);
+}
+
+function submitReply(itemType, itemId) {
+  if (!fbReady) return;
+  const key = getReplyKey(itemType, itemId);
+  if (!replyDrafts[key]) replyDrafts[key] = { name: getKnownUsername(), text: '', gif: null };
+  const known = getKnownUsername();
+  const name = (known || replyDrafts[key].name || '').trim() || 'Anonymous';
+  const text = (replyDrafts[key].text || '').trim();
+  if (!text) return;
+  const gif = (replyDrafts[key].gif || '').trim() || null;
+  const ref = firebase.database().ref(getReplyPath(itemType, itemId)).push();
+  ref.set({
+    id: ref.key,
+    author: name,
+    text,
+    gif,
+    time: Date.now(),
+    likes: 0,
+    dislikes: 0
+  }).then(() => {
+    saveKnownUsername(name);
+    replyDrafts[key] = { name, text: '', gif: null };
+    renderFeed();
+    renderComments(allComments);
+  });
+}
+
+function onReplyInputKeydown(e, itemType, itemId) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    submitReply(itemType, itemId);
+  }
+}
+
+function toggleReplyVote(itemType, itemId, replyId, direction) {
+  if (!fbReady) return;
+  const voteKey = getReplyVoteKey(itemType, itemId, replyId);
+  const prev = replyVotes[voteKey] || null;
+  const next = prev === direction ? null : direction;
+  firebase.database().ref(`${getReplyPath(itemType, itemId)}/${replyId}`).transaction(reply => {
+    if (!reply) return reply;
+    let likes = Math.max(0, Number(reply.likes) || 0);
+    let dislikes = Math.max(0, Number(reply.dislikes) || 0);
+    if (prev === 'up') likes = Math.max(0, likes - 1);
+    if (prev === 'down') dislikes = Math.max(0, dislikes - 1);
+    if (next === 'up') likes += 1;
+    if (next === 'down') dislikes += 1;
+    return { ...reply, likes, dislikes };
+  }).then(result => {
+    if (!result.committed) return;
+    if (next) replyVotes[voteKey] = next;
+    else delete replyVotes[voteKey];
+    saveReplyVotes();
+    renderFeed();
+    renderComments(allComments);
+  });
+}
+
+function renderThreadBlock(itemType, itemId) {
+  ensureReplyListener(itemType, itemId);
+  const key = getReplyKey(itemType, itemId);
+  const isOpen = openThreadKey === key;
+  const replies = getReplies(itemType, itemId);
+  if (!replyDrafts[key]) replyDrafts[key] = { name: getKnownUsername(), text: '', gif: null };
+  const draft = replyDrafts[key];
+  const knownName = getKnownUsername();
+  const hasKnownName = !!knownName;
+  const countLabel = replies.length === 1 ? 'reply' : 'replies';
+  const rows = replies.length
+    ? replies.map(r => {
+      const color = getAuthorColor(r.author || 'A');
+      const vote = replyVotes[getReplyVoteKey(itemType, itemId, r.id)] || null;
+      return `<div class="thread-reply">
+        <div class="thread-avatar" style="background:${color}25;border:1px solid ${color}66;color:${color}">${esc((r.author || '?')[0].toUpperCase())}</div>
+        <div class="thread-main">
+          <div class="thread-meta">
+            <span class="thread-author">${esc(r.author || 'Anonymous')}</span>
+            <span class="thread-time">${timeAgo(r.time)}</span>
+          </div>
+          <div class="thread-text">${esc(r.text || '')}</div>
+          ${r.gif ? `<img class="thread-gif inline-gif" src="${esc(r.gif)}" alt="Reply GIF" loading="lazy">` : ''}
+          <div class="thread-votes">
+            <button class="thread-vote up${vote === 'up' ? ' active' : ''}" onclick="toggleReplyVote('${itemType}','${itemId}','${r.id}','up')">👍 ${r.likes}</button>
+            <button class="thread-vote down${vote === 'down' ? ' active' : ''}" onclick="toggleReplyVote('${itemType}','${itemId}','${r.id}','down')">👎 ${r.dislikes}</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')
+    : '<div class="thread-empty">No replies yet. Start the thread.</div>';
+
+  return `<button class="thread-toggle" onclick="toggleThread('${itemType}','${itemId}')">💬 ${replies.length} ${countLabel}</button>
+    <div class="thread-panel${isOpen ? ' open' : ''}">
+      <div class="thread-list">${rows}</div>
+      <div class="thread-form">
+        ${hasKnownName ? '' : `<input class="thread-in name" type="text" placeholder="Your name" value="${esc(draft.name || '')}" oninput="handleReplyDraftInput('${itemType}','${itemId}','name',this.value)">`}
+        <input class="thread-in text" type="text" placeholder="Write a reply..." value="${esc(draft.text || '')}" oninput="handleReplyDraftInput('${itemType}','${itemId}','text',this.value)" onkeydown="onReplyInputKeydown(event,'${itemType}','${itemId}')">
+        <button class="thread-btn" id="replyGifBtn-${key}" onclick="openGifPickerForReply('${itemType}','${itemId}')">🎞️</button>
+        <button class="thread-btn" onclick="submitReply('${itemType}','${itemId}')">Send</button>
+        ${draft.gif ? `<span class="thread-gif-chip">GIF attached</span><img class="thread-gif inline-gif" src="${esc(draft.gif)}" alt="Reply draft GIF" loading="lazy"><button class="gif-remove" type="button" onclick="clearReplyGif('${key}')">✕</button>` : ''}
+      </div>
+    </div>`;
+}
+
 // ── COMMUNITY: BAND SELECT ──
 function populateBandSelect() {
   const sel = document.getElementById('cmBand');
@@ -1998,13 +2486,37 @@ let suggestionFilter = 'all';
 let dismissedApprovedSuggestionId = null;
 let commentSort = 'newest';
 let commentVotes = {};
+let openThreadKey = null;
+let replyVotes = {};
+let replyData = {};
+let replyListeners = {};
+let replyDrafts = {};
+let commentGif = null;
+let suggestionGif = null;
+let gifPickerState = { context: null, anchorEl: null };
+let gifPickerDebounce = null;
 try {
   commentVotes = JSON.parse(localStorage.getItem('buttrock-comment-votes') || '{}') || {};
 } catch (e) {
   commentVotes = {};
 }
+try {
+  replyVotes = JSON.parse(localStorage.getItem('buttrock-reply-votes') || '{}') || {};
+} catch (e) {
+  replyVotes = {};
+}
 function saveCommentVotes() {
   localStorage.setItem('buttrock-comment-votes', JSON.stringify(commentVotes));
+}
+function saveReplyVotes() {
+  localStorage.setItem('buttrock-reply-votes', JSON.stringify(replyVotes));
+}
+function saveKnownUsername(name) {
+  const clean = (name || '').trim();
+  if (clean) localStorage.setItem('buttrock-username', clean);
+}
+function getKnownUsername() {
+  return (localStorage.getItem('buttrock-username') || '').trim();
 }
 
 // ── loadComments() ──
@@ -2289,6 +2801,7 @@ function renderComments(list) {
     const likes = Math.max(0, Number(c.likes) || 0);
     const dislikes = Math.max(0, Number(c.dislikes) || 0);
     const vote = commentVotes[c.id];
+    const threadHTML = renderThreadBlock('comment', c.id);
     return (
     `<div class="comment">
        <div class="cm-meta">
@@ -2297,10 +2810,12 @@ function renderComments(list) {
          <span class="cm-time">${timeAgo(c.time)}</span>
        </div>
        <div class="cm-text">${esc(c.text)}</div>
+       ${c.gif ? `<img class="inline-gif" src="${esc(c.gif)}" alt="Comment GIF" loading="lazy">` : ''}
        <div class="cm-votes">
          <button class="cm-vote-btn up${vote === 'up' ? ' active' : ''}" onclick="toggleCommentVote('${c.id}','up')">👍 ${likes}</button>
          <button class="cm-vote-btn down${vote === 'down' ? ' active' : ''}" onclick="toggleCommentVote('${c.id}','down')">👎 ${dislikes}</button>
        </div>
+       ${threadHTML}
      </div>`
     );
   }).join('');
@@ -2354,11 +2869,13 @@ function submitComment() {
   if (!text) return;
   const btn = document.querySelector('.comm-form .comm-btn');
   if (btn) btn.disabled = true;
-  saveComment({ author: name, text, band, time: Date.now() })
+  saveComment({ author: name, text, band, gif: commentGif || null, time: Date.now() })
     .then(() => {
+      saveKnownUsername(name);
       document.getElementById('cmText').value = '';
       document.getElementById('cmChars').textContent = '0/500';
       document.getElementById('cmBand').value = '';
+      clearCommentGif();
     })
     .finally(() => { if (btn) btn.disabled = false; });
 }
@@ -2475,6 +2992,7 @@ function submitSuggestion() {
     band,
     genre,
     by,
+    gif: suggestionGif || null,
     upvotes: 1,
     downvotes: 0,
     votes: 1,
@@ -2485,8 +3003,10 @@ function submitSuggestion() {
   });
   myVotes.add(ref.key);
   saveMyVotes();
+  saveKnownUsername(by);
   bandEl.value  = '';
   document.getElementById('sgGenre').value = '';
+  clearSuggestionGif();
 }
 
 function toggleVote(id, currentVotes, voted) {
