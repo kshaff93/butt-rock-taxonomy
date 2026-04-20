@@ -490,6 +490,29 @@ header .sub{
   border-radius:2px;letter-spacing:1px;text-transform:uppercase;
 }
 .cm-text{font-size:0.8rem;color:#aa9977;line-height:1.5;font-family:'Special Elite',cursive;}
+.comm-stitle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;margin-top:24px;
+}
+.comm-stitle-row .comm-stitle{margin:0;}
+.cm-sort{display:flex;align-items:center;gap:3px;}
+.cm-sort-btn{
+  background:transparent;border:1px solid #201c14;color:#443322;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;
+  font-weight:700;padding:2px 8px;letter-spacing:1px;text-transform:uppercase;
+  border-radius:2px;cursor:pointer;transition:all 0.15s;
+}
+.cm-sort-btn:hover{color:var(--text-dim);border-color:#3a2f1a;}
+.cm-sort-btn.active{background:#1a140a;color:var(--gold);border-color:var(--gold-dim);}
+.cm-votes{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.cm-vote-btn{
+  background:transparent;border:1px solid #2a2218;color:#665544;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;
+  padding:1px 7px;border-radius:10px;cursor:pointer;transition:all 0.15s;
+}
+.cm-vote-btn:hover{color:var(--gold);border-color:#4a3922;background:#d4a44a10;}
+.cm-vote-btn.up.active{color:var(--gold);border-color:var(--gold-dim);background:#d4a44a18;}
+.cm-vote-btn.down.active{color:#b56a6a;border-color:#6a3232;background:#cc444418;}
 
 /* ── firebase offline banner ── */
 .fb-offline{
@@ -755,7 +778,13 @@ header .sub{
     </div>
     <div class="sugg-list" id="suggList"></div>
 
-    <div class="comm-stitle" style="margin-top:24px;">Discussion <span class="comm-count" id="comCount">0</span></div>
+    <div class="comm-stitle-row">
+      <div class="comm-stitle">Discussion <span class="comm-count" id="comCount">0</span></div>
+      <div class="cm-sort">
+        <button id="cmSortNewest" class="cm-sort-btn active" onclick="setCommentSort('newest')">Newest</button>
+        <button id="cmSortTop" class="cm-sort-btn" onclick="setCommentSort('top')">Top</button>
+      </div>
+    </div>
     <div class="comm-form">
       <input class="comm-in" id="cmName" type="text" placeholder="Your name *" maxlength="30">
       <div class="comm-err" id="cmNameErr">Please enter your name to comment.</div>
@@ -951,6 +980,10 @@ const SPOTIFY = {
   'A Perfect Circle':      '0Wxy7TOniMoMl1xmpEW2qG',
   'P.O.D.':                '1LwDaNsLvGKHlsJOphNfcv',
 };
+
+BANDS.forEach(b => {
+  if (!SPOTIFY[b.name]) console.warn('No Spotify ID for:', b.name);
+});
 
 // ── RELATED ARTISTS ──
 // Use rel(name) or rel(name, spotifyId) per entry.
@@ -1260,6 +1293,7 @@ function selectBand(i) {
   if (g) { g.classList.add('sel'); g.querySelector('.dot-ring').setAttribute('opacity','0.75'); }
 
   const band = BANDS[i];
+  console.log('selectBand called for:', band.name, 'Spotify ID:', SPOTIFY[band.name]);
   const col = G[band.genres[0]]?.c || '#d4a44a';
   document.getElementById('dpName').textContent = band.name;
   document.getElementById('dpName').style.color = col;
@@ -1276,18 +1310,17 @@ function selectBand(i) {
     document.getElementById('mA').style.width = band.art + '%';
   }, 40);
   dp.classList.add('on');
-  // Spotify embed
-  const spotifyId    = SPOTIFY[band.name];
-  const spRow        = document.getElementById('spRow');
-  const spotifyEmbed = document.getElementById('spotifyEmbed');
-  if (spotifyId && spRow && spotifyEmbed) {
-    spotifyEmbed.src = 'https://open.spotify.com/embed/artist/' + spotifyId + '?utm_source=generator&theme=0';
+  const spId = SPOTIFY[band.name];
+  const spRow = document.getElementById('spRow');
+  const spEmbed = document.getElementById('spotifyEmbed');
+  if (spId && spRow && spEmbed) {
+    spEmbed.src = 'https://open.spotify.com/embed/artist/' + spId + '?utm_source=generator&theme=0';
     spRow.style.display = 'block';
-    console.log('Setting spotify src:', spotifyEmbed.src);
-    console.log('spRow display:', spRow.style.display);
-  } else if (spRow) {
-    spRow.style.display = 'none';
-    if (spotifyEmbed) spotifyEmbed.src = '';
+    console.log('Spotify embed loaded:', spEmbed.src);
+  } else {
+    if (spRow) spRow.style.display = 'none';
+    if (spEmbed) spEmbed.src = '';
+    console.log('No spotify embed - spId:', spId, 'spRow:', !!spRow, 'spEmbed:', !!spEmbed);
   }
   updateSbSelection(i);
   renderDpRelated();
@@ -1300,6 +1333,8 @@ function closeDp() {
   const spotifyEmbed = document.getElementById('spotifyEmbed');
   if (spRow) spRow.style.display = 'none';
   if (spotifyEmbed) spotifyEmbed.src = '';
+  if (document.getElementById('spotifyEmbed')) document.getElementById('spotifyEmbed').src = '';
+  if (document.getElementById('relatedPlayerIframe')) document.getElementById('relatedPlayerIframe').src = '';
   closeRelPlayer();
   const dpr = document.getElementById('dpRelated');
   if (dpr) dpr.style.display = 'none';
@@ -1820,7 +1855,7 @@ function populateBandSelect() {
 // ─────────────────────────────────────────────
 // FIREBASE HELPERS
 // Database paths:
-//   /comments    → {id, author, text, band, time}
+//   /comments    → {id, author, text, band, time, likes, dislikes}
 //   /suggestions → {id, band, genre, by, votes, time}
 // ─────────────────────────────────────────────
 
@@ -1828,6 +1863,16 @@ function populateBandSelect() {
 // Used by the Community tab, Activity Feed, and detail panel comments.
 let allComments    = [];
 let allSuggestions = [];
+let commentSort = 'newest';
+let commentVotes = {};
+try {
+  commentVotes = JSON.parse(localStorage.getItem('buttrock-comment-votes') || '{}') || {};
+} catch (e) {
+  commentVotes = {};
+}
+function saveCommentVotes() {
+  localStorage.setItem('buttrock-comment-votes', JSON.stringify(commentVotes));
+}
 
 // ── loadComments() ──
 // Real-time listener ordered by time; populates allComments (newest-first),
@@ -1835,7 +1880,15 @@ let allSuggestions = [];
 function loadComments() {
   firebase.database().ref('comments').orderByChild('time').on('value', snap => {
     allComments = [];
-    snap.forEach(child => allComments.unshift({ ...child.val(), id: child.key }));
+    snap.forEach(child => {
+      const raw = child.val() || {};
+      const likes = Math.max(0, Number(raw.likes) || 0);
+      const dislikes = Math.max(0, Number(raw.dislikes) || 0);
+      if (typeof raw.likes !== 'number' || typeof raw.dislikes !== 'number') {
+        child.ref.update({ likes, dislikes });
+      }
+      allComments.unshift({ ...raw, id: child.key, likes, dislikes });
+    });
     renderComments(allComments);
     renderFeed();
     renderDpComments();
@@ -1846,7 +1899,7 @@ function loadComments() {
 // Generates a push key, embeds it as `id`, then writes the document.
 function saveComment(comment) {
   const ref = firebase.database().ref('comments').push();
-  return ref.set({ ...comment, id: ref.key });
+  return ref.set({ ...comment, likes: 0, dislikes: 0, id: ref.key });
 }
 
 // ── loadSuggestions() ──
@@ -1909,7 +1962,19 @@ function renderComments(list) {
     el.innerHTML = '<div class="comm-empty">No comments yet. Be the first to argue about genre boundaries.</div>';
     return;
   }
-  el.innerHTML = list.map(c =>
+  const sorted = list.slice().sort((a, b) => {
+    if (commentSort === 'top') {
+      const netA = (Number(a.likes) || 0) - (Number(a.dislikes) || 0);
+      const netB = (Number(b.likes) || 0) - (Number(b.dislikes) || 0);
+      if (netA !== netB) return netB - netA;
+    }
+    return b.time - a.time;
+  });
+  el.innerHTML = sorted.map(c => {
+    const likes = Math.max(0, Number(c.likes) || 0);
+    const dislikes = Math.max(0, Number(c.dislikes) || 0);
+    const vote = commentVotes[c.id];
+    return (
     `<div class="comment">
        <div class="cm-meta">
          <span class="cm-author">${esc(c.author)}</span>
@@ -1917,8 +1982,50 @@ function renderComments(list) {
          <span class="cm-time">${timeAgo(c.time)}</span>
        </div>
        <div class="cm-text">${esc(c.text)}</div>
+       <div class="cm-votes">
+         <button class="cm-vote-btn up${vote === 'up' ? ' active' : ''}" onclick="toggleCommentVote('${c.id}','up')">👍 ${likes}</button>
+         <button class="cm-vote-btn down${vote === 'down' ? ' active' : ''}" onclick="toggleCommentVote('${c.id}','down')">👎 ${dislikes}</button>
+       </div>
      </div>`
-  ).join('');
+    );
+  }).join('');
+}
+
+function setCommentSort(mode) {
+  commentSort = mode === 'top' ? 'top' : 'newest';
+  document.getElementById('cmSortNewest').classList.toggle('active', commentSort === 'newest');
+  document.getElementById('cmSortTop').classList.toggle('active', commentSort === 'top');
+  renderComments(allComments);
+}
+
+function updateCommentVote(commentId, previousVote, nextVote) {
+  return firebase.database().ref(`comments/${commentId}`).transaction(comment => {
+    if (!comment) return comment;
+    let likes = Math.max(0, Number(comment.likes) || 0);
+    let dislikes = Math.max(0, Number(comment.dislikes) || 0);
+
+    if (previousVote === 'up') likes = Math.max(0, likes - 1);
+    if (previousVote === 'down') dislikes = Math.max(0, dislikes - 1);
+    if (nextVote === 'up') likes += 1;
+    if (nextVote === 'down') dislikes += 1;
+
+    return { ...comment, likes, dislikes };
+  });
+}
+
+function toggleCommentVote(commentId, direction) {
+  if (!fbReady) return;
+  const previousVote = commentVotes[commentId] || null;
+  const nextVote = previousVote === direction ? null : direction;
+  updateCommentVote(commentId, previousVote, nextVote)
+    .then(result => {
+      if (!result.committed) return;
+      if (nextVote) commentVotes[commentId] = nextVote;
+      else delete commentVotes[commentId];
+      saveCommentVotes();
+      renderComments(allComments);
+    })
+    .catch(err => console.warn('Comment vote failed:', err.message));
 }
 
 function submitComment() {
